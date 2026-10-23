@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<!-- Main HTML document for VAVH.Studio homepage -->
+<html lang="en">
+<head>
+  <!-- Character encoding for proper text rendering -->
+  <meta charset="UTF-8" />
+  <!-- Responsive viewport settings for mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- SEO meta description -->
+  <meta name="description" content="VAVH.Studio — Premium home décor, planters, LED mirrors and artisan furniture for refined living spaces." />
+  <!-- Page title shown in browser tab -->
+  <title>VAVH.Studio — Premium Home Décor</title>
+
+  <!-- ── CSS Imports (load order matters) ─────────────── -->
+  <!-- Design tokens must load first so all vars are available -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <!-- Global resets and base styles -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Layout helpers: container, grid, sections -->
+  <link rel="stylesheet" href="css/layout.css" />
+  <!-- Reusable UI components -->
+  <link rel="stylesheet" href="css/components.css" />
+  <!-- Keyframes and animation utilities -->
+  <link rel="stylesheet" href="css/animations.css" />
+  <!-- Responsive breakpoint overrides -->
+  <link rel="stylesheet" href="css/responsive.css" />
+  <!-- Homepage-specific styles -->
+  <link rel="stylesheet" href="css/pages/home.css" />
+
+  <!-- Heroicons CDN — SVG icon set used throughout the site -->
+  <script src="https://unpkg.com/@heroicons/react@2.0.18/24/outline/index.js" defer></script>
+</head>
+<body class="page-enter">
+
+  <!-- ════════════════════════════════════════════════════
+       NAVBAR — Fixed glassmorphism navigation bar
+       ════════════════════════════════════════════════════ -->
+  <!-- Navbar component — rendered by navbar.js -->
+  <nav class="navbar" id="mainNavbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-inner">
+
+      <!-- Left zone — hamburger on mobile -->
+      <div class="navbar-left">
+        <!-- Hamburger menu button — visible only on mobile -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Open menu" aria-expanded="false">
+          <!-- Hamburger icon (3 lines) -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Center zone — logo always centered -->
+      <div class="navbar-center">
+        <!-- Brand logo link — navigates to homepage -->
+        <a href="index.html" class="navbar-logo" aria-label="VAVH.Studio home">
+          VAVH.Studio
+        </a>
+      </div>
+
+      <!-- Right zone — action icons -->
+      <div class="navbar-right">
+
+        <!-- Wishlist icon button with item count badge -->
+        <button class="nav-icon-btn" id="wishlistNavBtn" aria-label="Wishlist">
+          <!-- Heart outline icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+          </svg>
+          <!-- Badge shows wishlist count — hidden when 0 -->
+          <span class="nav-badge hidden" id="wishlistBadge">0</span>
+        </button>
+
+        <!-- Cart icon button with item count badge -->
+        <button class="nav-icon-btn" id="cartNavBtn" aria-label="Cart">
+          <!-- Shopping bag icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+          </svg>
+          <!-- Badge shows cart item count -->
+          <span class="nav-badge hidden" id="cartBadge">0</span>
+        </button>
+
+        <!-- Login / Profile button — switches label based on auth state -->
+        <a href="login.html" class="btn nav-login-btn" id="navLoginBtn">
+          <!-- Person icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width:16px;height:16px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          <!-- Text label — hidden on mobile via CSS -->
+          <span class="btn-text">Account</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile dropdown navigation menu — shown when hamburger is tapped -->
+  <div class="nav-mobile-menu" id="navMobileMenu" aria-hidden="true">
+    <!-- Mobile nav links -->
+    <a href="products.html" class="dash-nav-link">Shop All</a>
+    <a href="products.html?cat=Planter" class="dash-nav-link">Planters</a>
+    <a href="products.html?cat=3D+Planter" class="dash-nav-link">3D Planters</a>
+    <a href="products.html?cat=LED+Mirror" class="dash-nav-link">LED Mirrors</a>
+    <a href="products.html?cat=Furniture" class="dash-nav-link">Furniture</a>
+    <a href="services.html" class="dash-nav-link">Services</a>
+    <!-- Mobile action buttons row -->
+    <div class="nav-mobile-actions">
+      <a href="login.html" class="btn btn-primary btn-sm w-full">Sign In</a>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       HERO SECTION
+       ════════════════════════════════════════════════════ -->
+  <section class="hero container section" aria-label="Hero banner">
+
+    <!-- Hero text column -->
+    <div class="hero__text">
+      <!-- Small overline label -->
+      <p class="hero__eyebrow animate-fade-up">New Arrivals 2026</p>
+      <!-- Main headline with italic accent word -->
+      <h1 class="hero__title animate-fade-up delay-2">
+        Design Your<br /><em>Living Space</em><br />With Intent
+      </h1>
+      
+      <!-- Container for dynamic cinematic showcase or fallback -->
+      <div id="heroTextContainer">
+        <!-- Subheadline description -->
+        <p class="hero__subtitle animate-fade-up delay-3" id="heroSubtitle">
+          Curated planters, statement mirrors and artisan furniture crafted for modern, mindful homes.
+        </p>
+        <!-- CTA buttons -->
+        <div class="hero__actions animate-fade-up delay-4" id="heroActions">
+          <!-- Primary CTA — goes to products page -->
+          <a href="products.html" class="btn btn-primary btn-lg">Explore Collection</a>
+          <!-- Secondary ghost CTA — goes to services page -->
+          <a href="services.html" class="btn btn-ghost btn-lg">Our Services</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero visual column — Coverflow Carousel with dynamic backdrop -->
+    <div class="hero__visual animate-fade-up delay-3">
+      <div class="hero__coverflow-container" id="heroCoverflowContainer">
+        <!-- Dynamic ambient glow -->
+        <div class="hero__coverflow-ambient" id="coverflowAmbient"></div>
+
+        <!-- Coverflow slider track -->
+        <div class="hero__coverflow" id="heroCoverflow">
+          <!-- Slides are dynamically generated by JS -->
+          <div class="empty-state">
+            <p>Loading pieces...</p>
+          </div>
+        </div>
+
+        <!-- Arrows Navigation -->
+        <button class="hero__coverflow-btn hero__coverflow-btn--prev" id="coverflowPrev" aria-label="Previous product">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+        <button class="hero__coverflow-btn hero__coverflow-btn--next" id="coverflowNext" aria-label="Next product">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+
+        <!-- Pagination Dots -->
+        <div class="hero__coverflow-dots" id="coverflowDots"></div>
+      </div>
+
+      <!-- Floating statistics badge -->
+      <div class="hero__stat-card animate-fade-up delay-5" style="z-index: 25;">
+        <div class="hero__stat-number">500+</div>
+        <div class="hero__stat-label">Happy customers</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       CATEGORY STRIP
+       ════════════════════════════════════════════════════ -->
+  <section class="section-sm" aria-labelledby="categoryHeading">
+    <div class="container">
+      <!-- Section header -->
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Browse by</span>
+        <h2 class="section-title" id="categoryHeading">Shop by Category</h2>
+      </div>
+      <!-- Horizontally scrollable category cards strip -->
+      <div class="category-strip" id="categoryStrip">
+        <!-- Category cards populated by JS with product images -->
+
+      <a href="products.html?cat=Planter" class="category-card reveal">
+    <div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#A8B5A0,#7A9070);border-radius:var(--radius-xl);"></div>
+    <div class="category-card__name">Planter</div>
+</a>
+
+
+        <a href="products.html?cat=3D+Planter" class="category-card reveal delay-1">
+          <div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#E8C4B8,#D4956A);border-radius:var(--radius-xl);"></div>
+          <div class="category-card__name">3D Planter</div>
+        </a>
+        <a href="products.html?cat=LED+Mirror" class="category-card reveal delay-2">
+          <div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#F0EBE3,#E5DDD5);border-radius:var(--radius-xl);"></div>
+          <div class="category-card__name">LED Mirror</div>
+        </a>
+        <a href="products.html?cat=Furniture" class="category-card reveal delay-3">
+          <div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#2C2825,#3D3530);border-radius:var(--radius-xl);"></div>
+          <div class="category-card__name">Furniture</div>
+        </a>
+        <a href="products.html?cat=Home+Decor" class="category-card reveal delay-4">
+          <div style="width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#7A9070,#A8B5A0);border-radius:var(--radius-xl);"></div>
+          <div class="category-card__name">Home Décor</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       FEATURED PRODUCTS GRID
+       ════════════════════════════════════════════════════ -->
+  <section class="section" aria-labelledby="featuredHeading">
+    <div class="container">
+      <!-- Section header with filter pills -->
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Curated for you</span>
+        <h2 class="section-title" id="featuredHeading">Featured Products</h2>
+        <p class="section-subtitle">Handpicked pieces that bring warmth, texture and life to every room.</p>
+      </div>
+
+      <!-- Category filter pills — JS populates from API -->
+      <div class="filter-wrap reveal" id="homeFilterWrap" style="justify-content:center;margin-bottom:var(--space-8);">
+        <!-- "All" pill is active by default -->
+        <button class="filter-pill active" data-cat="all">All</button>
+        <button class="filter-pill" data-cat="Planter">Planter</button>
+        <button class="filter-pill" data-cat="3D Planter">3D Planter</button>
+        <button class="filter-pill" data-cat="LED Mirror">LED Mirror</button>
+        <button class="filter-pill" data-cat="Furniture">Furniture</button>
+        <button class="filter-pill" data-cat="Home Decor">Home Décor</button>
+      </div>
+
+      <!-- Products grid container — populated by home.js via API -->
+      <div class="products-grid" id="featuredGrid">
+        <!-- Skeleton loading cards shown while API fetches products -->
+        <!-- JS replaces these with real product cards -->
+        <div class="skeleton-card reveal">
+          <div class="skeleton-card__img"></div>
+          <div class="skeleton-card__line"></div>
+          <div class="skeleton-card__line short"></div>
+        </div>
+        <div class="skeleton-card reveal delay-1">
+          <div class="skeleton-card__img"></div>
+          <div class="skeleton-card__line"></div>
+          <div class="skeleton-card__line short"></div>
+        </div>
+        <div class="skeleton-card reveal delay-2">
+          <div class="skeleton-card__img"></div>
+          <div class="skeleton-card__line"></div>
+          <div class="skeleton-card__line short"></div>
+        </div>
+        <div class="skeleton-card reveal delay-3">
+          <div class="skeleton-card__img"></div>
+          <div class="skeleton-card__line"></div>
+          <div class="skeleton-card__line short"></div>
+        </div>
+      </div>
+
+      <!-- View all button below grid -->
+      <div class="text-center" style="margin-top:var(--space-12);">
+        <a href="products.html" class="btn btn-outline btn-lg reveal">View All Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       PROMOTIONAL BANNER
+       ════════════════════════════════════════════════════ -->
+  <section class="section-sm">
+    <div class="container">
+      <div class="promo-banner reveal">
+        <div class="promo-banner__text">
+          <!-- Promo eyebrow label -->
+          <p class="promo-banner__eyebrow">Free Delivery</p>
+          <!-- Promo headline -->
+          <h2 class="promo-banner__title">On all orders over ৳3,000</h2>
+          <!-- Promo subtitle -->
+          <p class="promo-banner__sub">Premium packaging · Secure checkout · 7-day returns</p>
+        </div>
+        <!-- Promo CTA button -->
+        <div class="promo-banner__actions">
+          <a href="products.html" class="btn btn-accent btn-lg">Shop Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       FOOTER
+       ════════════════════════════════════════════════════ -->
+  <!-- Footer component — rendered by footer.js -->
+  <footer class="footer" id="siteFooter" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid reveal">
+
+        <!-- Brand column -->
+        <div class="footer-brand">
+          <!-- Footer logo -->
+          <span class="footer-logo">VAVH.Studio</span>
+          <!-- Company description — editable via admin panel -->
+          <p class="footer-desc" id="footerDesc">
+            A curated collection of premium home décor, artisan planters, and statement pieces for modern living spaces. Crafted with intention, delivered with care.
+          </p>
+          <!-- Partners section -->
+          <p style="font-size:var(--text-xs);color:rgba(255,255,255,0.35);margin-top:var(--space-2);" id="footerPartners">
+            Partners: <a href="https://www.facebook.com/offbrndd" target="_blank">OFF BRND</a> · <a href="https://www.facebook.com/Terraviita" target="_blank">Terra-viita Studio</a> · <a href="https://www.facebook.com/Terraviita" target="_blank">Kingbodonti Co.</a>
+          </p>
+          <!-- Social media icon links — data loaded from API -->
+          <div class="footer-socials" id="footerSocials">
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/vavh.studio/" class="footer-social-btn" aria-label="Instagram" data-social="instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/vavhstudio" class="footer-social-btn" aria-label="Facebook" data-social="facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+            </a>
+            <!-- Pinterest -->
+            <a href="http://facebook.com/vavhstudio" class="footer-social-btn" aria-label="Pinterest" data-social="pinterest">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312-.088-.791-.167-2.005.035-2.868.181-.78 1.172-4.97 1.172-4.97s-.299-.598-.299-1.482c0-1.388.806-2.428 1.808-2.428.853 0 1.267.641 1.267 1.408 0 .858-.546 2.140-.828 3.330-.236.995.499 1.806 1.476 1.806 1.772 0 3.137-1.868 3.137-4.566 0-2.387-1.718-4.055-4.169-4.055-2.837 0-4.503 2.127-4.503 4.327 0 .856.330 1.775.741 2.277.081.099.093.186.069.286-.076.313-.244.995-.277 1.134-.044.181-.146.219-.338.132-1.249-.581-2.030-2.407-2.030-3.874 0-3.154 2.292-6.052 6.608-6.052 3.469 0 6.165 2.473 6.165 5.776 0 3.447-2.173 6.220-5.190 6.220-1.013 0-1.966-.527-2.292-1.148l-.623 2.378c-.226.869-.835 1.958-1.244 2.621.937.29 1.931.446 2.962.446 5.522 0 10-4.477 10-10S17.522 2 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Shop links column -->
+        <div>
+          <h3 class="footer-heading">Shop</h3>
+          <a href="products.html?cat=Planter" class="footer-link">Planters</a>
+          <a href="products.html?cat=3D+Planter" class="footer-link">3D Planters</a>
+          <a href="products.html?cat=LED+Mirror" class="footer-link">LED Mirrors</a>
+          <a href="products.html?cat=Furniture" class="footer-link">Furniture</a>
+          <a href="products.html?cat=Home+Decor" class="footer-link">Home Décor</a>
+        </div>
+
+        <!-- Services column -->
+        <div>
+          <h3 class="footer-heading">Services</h3>
+          <a href="services.html" class="footer-link">Interior Styling</a>
+          <a href="services.html" class="footer-link">Custom Orders</a>
+          <a href="services.html" class="footer-link">Gifting</a>
+          <a href="services.html" class="footer-link">B2B Supply</a>
+        </div>
+
+        <!-- Account column -->
+        <div>
+          <h3 class="footer-heading">Account</h3>
+          <a href="login.html" class="footer-link">Sign In</a>
+          <a href="register.html" class="footer-link">Register</a>
+          <a href="dashboard.html" class="footer-link">Dashboard</a>
+          <a href="dashboard.html#orders" class="footer-link">My Orders</a>
+        </div>
+      </div>
+
+      <!-- Footer bottom bar -->
+      <div class="footer-bottom">
+        <!-- Copyright notice -->
+        <span>&copy; 2026 VAVH.Studio. All rights reserved.</span>
+        <!-- Legal links -->
+        <span>Privacy Policy · Terms of Service</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════
+       CART SIDE DRAWER
+       ════════════════════════════════════════════════════ -->
+  <!-- Cart overlay — clicking outside closes drawer -->
+  <div class="cart-overlay" id="cartOverlay" role="dialog" aria-label="Shopping cart" aria-hidden="true">
+    <!-- Cart panel slides from right -->
+    <div class="cart-panel">
+      <!-- Cart header -->
+      <div class="cart-header">
+        <h2 class="cart-title">Your Cart</h2>
+        <!-- Close cart button -->
+        <button class="modal-close" id="cartClose" aria-label="Close cart">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <!-- Scrollable cart items list -->
+      <div class="cart-items" id="cartItems">
+        <!-- Empty state shown when cart is empty -->
+        <div class="empty-state" id="cartEmpty">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+          <h3>Your cart is empty</h3>
+          <p style="font-size:var(--text-sm);margin-top:var(--space-2);">Add some beautiful pieces to get started.</p>
+        </div>
+      </div>
+      <div class="cart-customer-section" id="cartCustomerSection" style="display:none;padding:1rem;border-top:1px solid var(--color-border);gap:1rem;">
+        <h3 style="margin-bottom:.75rem;font-size:1rem;font-weight:600;">Customer details</h3>
+        <div class="form-group">
+          <label class="form-label" for="cartCustomerName">Name</label>
+          <input class="form-input" id="cartCustomerName" type="text" placeholder="Enter full name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cartCustomerEmail">Email</label>
+          <input class="form-input" id="cartCustomerEmail" type="email" placeholder="Enter email address" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cartCustomerPhone">Phone</label>
+          <input class="form-input" id="cartCustomerPhone" type="tel" placeholder="Enter phone number" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cartCustomerAddress">Delivery address</label>
+          <textarea class="form-textarea" id="cartCustomerAddress" rows="3" placeholder="Enter delivery address"></textarea>
+        </div>
+      </div>
+      <!-- Cart footer — total and checkout -->
+      <div class="cart-footer" id="cartFooter" style="display:none;">
+        <div class="cart-total">
+          <span>Total</span>
+          <span id="cartTotal">৳0</span>
+        </div>
+        <!-- Checkout button — navigates to order placement flow -->
+        <button class="btn btn-primary w-full" id="checkoutBtn">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       PRODUCT DETAIL MODAL
+       ════════════════════════════════════════════════════ -->
+  <!-- Product modal overlay — opened when card is clicked -->
+  <div class="modal-overlay" id="productModalOverlay" role="dialog" aria-modal="true" aria-label="Product details" aria-hidden="true">
+    <div class="modal" id="productModal">
+      <!-- Modal header with title and close -->
+      <div class="modal-header">
+        <h2 class="modal-title" id="productModalTitle">Product Details</h2>
+        <!-- Close button for modal -->
+        <button class="modal-close" id="productModalClose" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <!-- Modal body — two column product layout -->
+      <div class="modal-body">
+        <div class="product-modal-grid">
+          <!-- Product image -->
+          <img id="productModalImg" src="" alt="" class="product-modal-img" />
+          <!-- Product info column -->
+          <div class="product-modal-info">
+            <!-- Category badge -->
+            <span class="product-modal-category" id="productModalCategory"></span>
+            <!-- Product full name -->
+            <h3 class="product-modal-title" id="productModalName"></h3>
+            <!-- Price display -->
+            <p class="product-modal-price" id="productModalPrice"></p>
+            <!-- Full description -->
+            <p class="product-modal-desc" id="productModalDesc"></p>
+            <!-- Comment textarea for purchase note -->
+            <div class="form-group">
+              <label class="form-label" for="purchaseComment">Add a note (optional)</label>
+              <textarea
+                class="product-modal-comment"
+                id="purchaseComment"
+                placeholder="Colour preference, gift message, special request…"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal footer — action buttons -->
+      <div class="modal-footer">
+        <!-- Wishlist toggle button -->
+        <button class="btn btn-outline" id="modalWishlistBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+          Save to Wishlist
+        </button>
+        <!-- Add to cart button -->
+        <button class="btn btn-primary" id="modalAddToCartBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       TOAST NOTIFICATION CONTAINER
+       ════════════════════════════════════════════════════ -->
+  <!-- Toast messages pop up here — managed by toast.js -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ════════════════════════════════════════════════════
+       ADMIN PANEL (HIDDEN — CTRL+SHIFT+A to open)
+       ════════════════════════════════════════════════════ -->
+  <!-- Admin panel is completely hidden by default -->
+  <!-- Access is triggered by Ctrl+Shift+A keyboard shortcut -->
+  <div class="admin-panel" id="adminPanel" aria-hidden="true">
+    <!-- Admin header bar -->
+    <div class="admin-header">
+      <span style="font-family:var(--font-display);font-size:var(--text-lg);">VAVH Admin</span>
+      <!-- Close admin panel button -->
+      <button class="btn" style="color:white;font-size:var(--text-sm);" id="adminClose">Close Admin ✕</button>
+    </div>
+    <!-- Admin inner layout — sidebar + content -->
+    <div class="admin-layout">
+      <!-- Admin sidebar navigation -->
+      <div class="admin-sidebar">
+        <nav>
+          <button class="dash-nav-link w-full active" data-admin-tab="products">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+            Products
+          </button>
+          <button class="dash-nav-link w-full" data-admin-tab="categories">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" /></svg>
+            Categories
+          </button>
+          <button class="dash-nav-link w-full" data-admin-tab="orders">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
+            Orders
+          </button>
+          <button class="dash-nav-link w-full" data-admin-tab="services">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>
+            Services
+          </button>
+          <button class="dash-nav-link w-full" data-admin-tab="about">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+            About / Social
+          </button>
+        </nav>
+      </div>
+      <!-- Admin main content — tab panels loaded by admin.js -->
+      <div class="admin-content" id="adminContent">
+        <!-- Content loaded dynamically by admin.js -->
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading admin panel…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       JAVASCRIPT IMPORTS
+       ════════════════════════════════════════════════════ -->
+
+  <!-- Utility: API fetch wrapper with auth token handling -->
+  <script src="js/utils/api.js"></script>
+  <script src="js/utils/analytics.js"></script>
+  <!-- Utility: Local storage helpers for cart/wishlist -->
+  <script src="js/utils/storage.js"></script>
+  <!-- Utility: General helper functions -->
+  <script src="js/utils/helpers.js"></script>
+  <!-- Utility: App-wide constants (API base URL, etc.) -->
+  <script src="js/utils/constants.js"></script>
+
+  <!-- Component: Toast notification manager -->
+  <script src="js/components/toast.js"></script>
+  <!-- Component: Navigation bar behavior (scroll, hamburger) -->
+  <script src="js/components/navbar.js"></script>
+  <!-- Component: Footer social link loader -->
+  <script src="js/components/footer.js"></script>
+  <!-- Component: Product card builder -->
+  <script src="js/components/productCard.js"></script>
+  <!-- Component: Product detail modal -->
+  <script src="js/components/modal.js"></script>
+  <!-- Component: Category / filter pills logic -->
+  <script src="js/components/filter.js"></script>
+  <!-- Component: Search bar behavior -->
+  <script src="js/components/search.js"></script>
+
+  <!-- Feature: Cart state and drawer -->
+  <script src="js/features/cart.js"></script>
+  <!-- Feature: Wishlist state -->
+  <script src="js/features/wishlist.js"></script>
+  <!-- Feature: Authentication state check -->
+  <script src="js/features/auth.js"></script>
+
+  <!-- Animation: Scroll reveal observer -->
+  <script src="js/animations/scrollReveal.js"></script>
+  <!-- Animation: Hero parallax effect -->
+  <script src="js/animations/heroParallax.js"></script>
+  <!-- Animation: Card hover micro-effects -->
+  <script src="js/animations/cardHover.js"></script>
+
+  <!-- Page: Homepage-specific logic (featured products, category filter) -->
+  <script src="js/pages/home.js"></script>
+
+  <!-- Admin: Panel — loaded last; hidden unless shortcut activated -->
+  <script src="js/pages/admin.js"></script>
+
+</body>
+</html>

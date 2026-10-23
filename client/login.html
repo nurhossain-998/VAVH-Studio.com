@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- Login page for VAVH.Studio -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to your VAVH.Studio account." />
+  <title>Sign In — VAVH.Studio</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <!-- Auth-specific styles -->
+  <link rel="stylesheet" href="css/pages/auth.css" />
+</head>
+<body class="page-enter">
+
+  <!-- Minimal navbar for auth pages — just logo -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="navbar-inner">
+      <div class="navbar-left"></div>
+      <div class="navbar-center">
+        <a href="index.html" class="navbar-logo">VAVH.Studio</a>
+      </div>
+      <div class="navbar-right">
+        <!-- Back to shop link -->
+        <a href="index.html" class="btn btn-ghost btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+          Back to Shop
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Login Card ─────────────────────────────────────── -->
+  <main class="auth-page">
+    <div class="auth-card animate-scale">
+
+      <!-- Logo displayed inside auth card -->
+      <div class="auth-logo">VAVH.Studio</div>
+
+      <!-- Page title and subtitle -->
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account to continue shopping</p>
+
+      <!-- Login form — submitted by login.js -->
+      <form class="auth-form" id="loginForm" novalidate>
+
+        <!-- Email field -->
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Email address</label>
+          <input
+            type="email"
+            id="loginEmail"
+            name="email"
+            class="form-input"
+            placeholder="hello@example.com"
+            autocomplete="email"
+            required
+            aria-required="true"
+          />
+          <!-- Inline validation message — shown by JS -->
+          <span class="form-error hidden" id="emailError"></span>
+        </div>
+
+        <!-- Password field -->
+        <div class="form-group">
+          <!-- Label row with forgot password link on right -->
+          <div class="flex-between">
+            <label class="form-label" for="loginPassword">Password</label>
+            <a href="#" style="font-size:var(--text-xs);color:var(--color-accent);">Forgot password?</a>
+          </div>
+          <!-- Password input wrapper — includes show/hide toggle -->
+          <div style="position:relative;">
+            <input
+              type="password"
+              id="loginPassword"
+              name="password"
+              class="form-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+              aria-required="true"
+            />
+            <!-- Toggle password visibility button -->
+            <button
+              type="button"
+              id="togglePassword"
+              style="position:absolute;right:var(--space-4);top:50%;transform:translateY(-50%);color:var(--color-text-muted);"
+              aria-label="Toggle password visibility"
+            >
+              <!-- Eye icon — swapped to eye-slash by JS -->
+              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor" style="width:18px;height:18px;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            </button>
+          </div>
+          <span class="form-error hidden" id="passwordError"></span>
+        </div>
+
+        <!-- Submit button — shows spinner during API call -->
+        <button type="submit" class="btn btn-primary w-full btn-lg" id="loginSubmitBtn">
+          <!-- Loading spinner hidden until submit -->
+          <span class="spinner hidden" id="loginSpinner" style="width:18px;height:18px;border-width:2px;"></span>
+          <span id="loginBtnText">Sign In</span>
+        </button>
+
+        <!-- General form error message area -->
+        <p class="form-error text-center hidden" id="loginError" role="alert"></p>
+      </form>
+
+      <!-- Divider between form and register link -->
+      <div class="auth-divider" style="margin-block:var(--space-6);">or</div>
+
+      <!-- Register redirect -->
+      <p class="auth-footer">
+        Don't have an account?
+        <a href="register.html">Create one free</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Toast container for auth feedback -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- JS utilities and login logic -->
+  <script src="js/utils/constants.js"></script>
+  <script src="js/utils/api.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script src="js/components/navbar.js"></script>
+  <script src="js/features/auth.js"></script>
+  <!-- Login page: form validation + API call -->
+  <script src="js/pages/login.js"></script>
+</body>
+</html>

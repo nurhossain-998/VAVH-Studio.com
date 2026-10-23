@@ -1,0 +1,208 @@
+/* ============================================================
+   layout.css — Structural Layout Helpers for VAVH.Studio
+   Containers, grids, sections, and page scaffolding
+   ============================================================ */
+
+/* ── Container ───────────────────────────────────────────── */
+
+/* Centered content wrapper with max-width and responsive padding */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  /* Auto horizontal centering */
+  margin-inline: auto;
+  /* Responsive horizontal padding using clamp */
+  padding-inline: var(--container-pad);
+}
+
+/* Narrow container for reading-width content */
+.container-sm {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* ── Section Wrappers ────────────────────────────────────── */
+
+/* Standard section vertical padding */
+.section {
+  padding-block: var(--space-20);
+}
+
+/* Smaller section for tighter layouts */
+.section-sm {
+  padding-block: var(--space-12);
+}
+
+/* Large section for hero / landing areas */
+.section-lg {
+  padding-block: var(--space-24);
+}
+
+/* ── Product Grid ─────────────────────────────────────────── */
+
+/* Responsive product card grid:
+   Auto-fit columns: 2 on mobile, 3–4 on desktop */
+.products-grid {
+  display: grid;
+  /* Minimum column width 240px, fills available space */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-6);
+}
+
+/* ── Generic Grid Helpers ─────────────────────────────────── */
+
+/* Two-column equal grid */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+/* Three-column equal grid */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+/* Four-column equal grid */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+/* ── Flex Layout Helpers ──────────────────────────────────── */
+
+/* Flex row wrapping container */
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* Flex column stack */
+.flex-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* ── Page Hero ────────────────────────────────────────────── */
+
+/* Full-viewport hero section with centered content */
+.page-hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* Subtle warm gradient background for hero */
+  background: linear-gradient(
+    135deg,
+    var(--color-bg)    0%,
+    var(--color-bg-alt) 50%,
+    var(--color-surface) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Dashboard Layout ─────────────────────────────────────── */
+
+/* Sidebar + main content layout for dashboard pages */
+.dashboard-layout {
+  display: grid;
+  /* 260px sidebar, rest for main content */
+  grid-template-columns: 260px 1fr;
+  gap: var(--space-8);
+  min-height: calc(100vh - var(--navbar-height));
+  align-items: start;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+
+/* Sticky sidebar panel */
+.sidebar {
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--space-6));
+  background: var(--glass-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Content Areas ───────────────────────────────────────── */
+
+/* Primary content area beside sidebar */
+.content-area {
+  min-width: 0; /* Prevent overflow in grid */
+}
+
+/* ── Dividers ─────────────────────────────────────────────── */
+
+/* Horizontal rule divider with warm border color */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+  border: none;
+  margin-block: var(--space-8);
+}
+
+/* ── Responsive Breakpoints ──────────────────────────────── */
+
+/* Tablet: max 1024px — stack dashboard sidebar below content */
+@media (max-width: 1024px) {
+  /* Switch dashboard to single column on tablet */
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Remove sticky positioning on mobile sidebar */
+  .sidebar {
+    position: static;
+  }
+
+  /* Reduce section padding on tablet */
+  .section {
+    padding-block: var(--space-16);
+  }
+
+  /* 3-column grid collapses to 2 */
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile: max 640px — single column layouts */
+@media (max-width: 640px) {
+  /* Product grid: 2 columns on mobile */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  /* All multi-column grids collapse to single column on mobile */
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Reduce section padding on mobile */
+  .section,
+  .section-lg {
+    padding-block: var(--space-12);
+  }
+
+  .section-sm {
+    padding-block: var(--space-8);
+  }
+}

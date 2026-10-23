@@ -1,0 +1,215 @@
+/* ============================================================
+   style.css — Global Base Styles & CSS Reset for VAVH.Studio
+   Import order: variables → style → layout → components → ...
+   ============================================================ */
+
+/* Import the Google Fonts used across the site */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Poppins:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+/* Box-sizing border-box for all elements — prevents overflow surprises */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margin and padding on all elements */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set root font size and smooth font rendering */
+html {
+  font-size: var(--font-size-base);
+  /* Enable smooth scrolling for anchor navigation */
+  scroll-behavior: smooth;
+  /* Prevent horizontal overflow */
+  overflow-x: hidden;
+}
+
+/* Base body styles — font, color, background, line-height */
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--fw-normal);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: var(--lh-normal);
+  /* Anti-aliased text rendering for sharper text */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Push content below fixed navbar */
+  padding-top: var(--navbar-height);
+  /* Prevent horizontal scroll from any overflow */
+  overflow-x: hidden;
+}
+
+/* Remove list bullets and padding for nav/menu lists */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove default link underline; inherit color */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Make images responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+  /* Prevent images from being selected */
+  user-select: none;
+}
+
+/* Make buttons use cursor pointer and reset default styles */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Reset input / textarea / select to inherit font */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Prevent textarea from being resized horizontally */
+textarea {
+  resize: vertical;
+}
+
+/* ── Typography Base ────────────────────────────────────── */
+
+/* Headings use Poppins; adjust weight and size via utility classes */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--fw-semi);
+  line-height: var(--lh-snug);
+  color: var(--color-text);
+}
+
+/* Paragraph base spacing */
+p {
+  line-height: var(--lh-relaxed);
+}
+
+/* Small text utility */
+small {
+  font-size: var(--text-sm);
+}
+
+/* ── Utility Classes ─────────────────────────────────────── */
+
+/* Visually hide an element but keep it accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Flex row centered both axes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Flex row with space between items */
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Flex column layout */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Text alignment utilities */
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
+
+/* Font family utilities */
+.font-display  { font-family: var(--font-display); }
+.font-heading  { font-family: var(--font-heading); }
+.font-body     { font-family: var(--font-body); }
+
+/* Color utilities */
+.text-muted    { color: var(--color-text-muted); }
+.text-accent   { color: var(--color-accent); }
+.text-sage     { color: var(--color-sage-dark); }
+
+/* Truncate overflowing text with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hide element completely */
+.hidden { display: none !important; }
+
+/* Show element as block */
+.block  { display: block; }
+
+/* Full width utility */
+.w-full { width: 100%; }
+
+/* ── Scrollbar Styling ──────────────────────────────────── */
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Scrollbar track background */
+::-webkit-scrollbar-track {
+  background: var(--color-bg-alt);
+}
+
+/* Scrollbar thumb color and radius */
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+/* Scrollbar thumb hover state */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* ── Selection Color ─────────────────────────────────────── */
+
+/* Custom text selection highlight color */
+::selection {
+  background-color: var(--color-blush);
+  color: var(--color-text);
+}
+
+/* ── Focus Visible ───────────────────────────────────────── */
+
+/* Accessible focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}

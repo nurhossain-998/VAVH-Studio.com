@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAVH Browser</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="browser-shell">
+    <div class="browser-topbar">
+      <button class="browser-nav-btn" id="browser-back-btn" onclick="browserBack()" title="Back" disabled><i class="fas fa-arrow-left"></i></button>
+      <button class="browser-nav-btn" id="browser-fwd-btn" onclick="browserForward()" title="Forward" disabled><i class="fas fa-arrow-right"></i></button>
+      <button class="browser-nav-btn" id="browser-reload-btn" onclick="browserReload()" title="Reload"><i class="fas fa-redo-alt"></i></button>
+      <div class="browser-url-bar" onclick="focusBrowserSearch()">
+        <i class="fas fa-search url-icon" id="browser-url-icon"></i>
+        <input type="text" id="browser-url-input" placeholder="Search the web or type a URL..." onkeydown="if(event.key==='Enter') browserNavigate(this.value)">
+        <button onclick="clearBrowserUrl()" title="Clear" class="browser-url-clear" id="browser-clear-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <select id="browser-engine-pick" class="browser-engine-pick">
+        <option value="google">Google</option>
+        <option value="youtube">YouTube</option>
+        <option value="bing">Bing</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="wikipedia">Wikipedia</option>
+      </select>
+      <button class="browser-nav-btn browser-open-tab" onclick="browserOpenTab()" title="Open in new tab"><i class="fas fa-external-link-alt"></i></button>
+    </div>
+
+    <div class="browser-loading-wrap">
+      <div id="browser-loading-bar" class="browser-loading-bar"></div>
+    </div>
+
+    <div class="browser-home" id="browser-home">
+      <div class="browser-home-logo">🔍</div>
+      <h2>Universal Search</h2>
+      <p>Search YouTube, Google, Reddit, Wikipedia, and the web from one place.</p>
+      <div class="usearch-wrap">
+        <input type="text" class="usearch-input" id="browser-home-search" placeholder="Search or enter a URL…" onkeydown="if(event.key==='Enter') browserNavigate(this.value)">
+        <select class="usearch-engine-select" id="browser-home-engine">
+          <option value="google">🌐 Google</option>
+          <option value="youtube">▶ YouTube</option>
+          <option value="bing">🔷 Bing</option>
+          <option value="duckduckgo">🦆 DuckDuckGo</option>
+          <option value="wikipedia">📖 Wikipedia</option>
+        </select>
+        <button class="usearch-btn" onclick="browserNavigate(document.getElementById('browser-home-search').value)"><i class="fas fa-search"></i> Search</button>
+      </div>
+
+      <div id="browser-history-wrap" class="browser-history-wrap" style="display:none;">
+        <div class="history-label">Recent Searches</div>
+        <div class="search-history" id="browser-history-chips"></div>
+      </div>
+
+      <div class="browser-shortcuts">
+        <div class="browser-shortcut" onclick="browserGo('https://www.google.com')"><span class="sc-icon">🌐</span><span class="sc-label">Google</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.youtube.com')"><span class="sc-icon">▶️</span><span class="sc-label">YouTube</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.reddit.com')"><span class="sc-icon">🤖</span><span class="sc-label">Reddit</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.wikipedia.org')"><span class="sc-icon">📖</span><span class="sc-label">Wikipedia</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.facebook.com')"><span class="sc-icon">👤</span><span class="sc-label">Facebook</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://twitter.com')"><span class="sc-icon">🐦</span><span class="sc-label">X / Twitter</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.instagram.com')"><span class="sc-icon">📸</span><span class="sc-label">Instagram</span></div>
+        <div class="browser-shortcut" onclick="browserGo('https://www.github.com')"><span class="sc-icon">💻</span><span class="sc-label">GitHub</span></div>
+      </div>
+
+      <div class="browser-note">
+        <strong>Browser note:</strong>
+        <p>Best experience in Electron. Some sites may not load in a browser iframe due to embedding restrictions.</p>
+      </div>
+    </div>
+
+    <div class="browser-iframe-area" id="browser-iframe-area" style="display:none;">
+      <div id="browser-blocked-msg" class="browser-blocked-msg" style="display:none;">
+        <div class="blocked-icon">🔒</div>
+        <h3 id="browser-blocked-title">Site blocked embedding</h3>
+        <p id="browser-blocked-desc">This website prevents being embedded. Open it directly in your browser.</p>
+        <button id="browser-blocked-button" onclick="browserOpenTab()" class="blocked-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</button>
+      </div>
+      <iframe id="browser-iframe" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" referrerpolicy="no-referrer-when-downgrade" onload="onBrowserIframeLoad()" onerror="onBrowserIframeError()"></iframe>
+    </div>
+  </div>
+
+  <script src="browser.js"></script>
+</body>
+</html>

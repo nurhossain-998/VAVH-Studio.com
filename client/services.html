@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- Services page for VAVH.Studio -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore VAVH.Studio's premium services — interior styling, custom orders, gifting and B2B supply." />
+  <title>Our Services — VAVH.Studio</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/pages/services.css" />
+</head>
+<body class="page-enter">
+
+  <!-- Standard navbar -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="navbar-inner">
+      <div class="navbar-left">
+        <button class="nav-hamburger" id="navHamburger" aria-label="Open menu">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+        </button>
+      </div>
+      <div class="navbar-center">
+        <a href="index.html" class="navbar-logo">VAVH.Studio</a>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-icon-btn" id="cartNavBtn" aria-label="Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+          <span class="nav-badge hidden" id="cartBadge">0</span>
+        </button>
+        <a href="login.html" class="btn nav-login-btn" id="navLoginBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+          <span class="btn-text">Account</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="nav-mobile-menu" id="navMobileMenu">
+    <a href="products.html" class="dash-nav-link">Shop All</a>
+    <a href="services.html" class="dash-nav-link">Services</a>
+    <div class="nav-mobile-actions">
+      <a href="login.html" class="btn btn-primary btn-sm w-full">Sign In</a>
+    </div>
+  </div>
+
+  <!-- ── Services Hero ──────────────────────────────────── -->
+  <section class="section" style="background:linear-gradient(135deg,var(--color-bg) 0%,var(--color-surface) 100%);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">What we offer</span>
+        <h1 class="section-title">Our Services</h1>
+        <p class="section-subtitle">
+          From curated interior styling to bespoke B2B supply — we bring the VAVH.Studio experience to every space.
+        </p>
+      </div>
+
+      <!-- Services grid — populated from API by services.js -->
+      <div class="services-grid" id="servicesGrid">
+        <!-- Static fallback cards shown before JS loads -->
+        <!-- Service: Interior Styling -->
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+          </div>
+          <h2 class="service-card__title">Interior Styling</h2>
+          <p class="service-card__desc">
+            Our expert stylists help you curate and place pieces that transform your living space with intention and warmth.
+          </p>
+        </article>
+
+        <!-- Service: Custom Orders -->
+        <article class="service-card reveal delay-1">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" /></svg>
+          </div>
+          <h2 class="service-card__title">Custom Orders</h2>
+          <p class="service-card__desc">
+            Request bespoke sizes, finishes and colour ways tailored precisely to your vision and spatial requirements.
+          </p>
+        </article>
+
+        <!-- Service: Premium Gifting -->
+        <article class="service-card reveal delay-2">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+          </div>
+          <h2 class="service-card__title">Premium Gifting</h2>
+          <p class="service-card__desc">
+            Beautifully packaged gift sets and personalised notes — perfect for housewarmings, weddings and celebrations.
+          </p>
+        </article>
+
+        <!-- Service: B2B Supply -->
+        <article class="service-card reveal delay-3">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+          </div>
+          <h2 class="service-card__title">B2B Supply</h2>
+          <p class="service-card__desc">
+            Wholesale and trade pricing for hotels, restaurants, offices and retail partners. Volume discounts available.
+          </p>
+        </article>
+
+        <!-- Service: Plant Care Consultation -->
+        <article class="service-card reveal delay-4">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
+          </div>
+          <h2 class="service-card__title">Plant Care Advice</h2>
+          <p class="service-card__desc">
+            Free guidance on placement, watering schedules and seasonal care to keep your planters thriving year-round.
+          </p>
+        </article>
+
+        <!-- Service: Express Delivery -->
+        <article class="service-card reveal delay-5">
+          <div class="service-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+          </div>
+          <h2 class="service-card__title">Express Delivery</h2>
+          <p class="service-card__desc">
+            Same-day delivery within Dhaka city and 24-hour nationwide shipping with real-time tracking.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" id="siteFooter">
+    <div class="container">
+      <div class="footer-bottom" style="border-top:none;padding-top:0;">
+        <span class="footer-logo">VAVH.Studio</span>
+        <span style="color:rgba(255,255,255,0.35);font-size:var(--text-xs);">&copy; 2025 VAVH.Studio. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="js/utils/constants.js"></script>
+  <script src="js/utils/api.js"></script>
+  <script src="js/utils/storage.js"></script>
+  <script src="js/utils/helpers.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script src="js/components/navbar.js"></script>
+  <script src="js/features/cart.js"></script>
+  <script src="js/features/auth.js"></script>
+  <script src="js/animations/scrollReveal.js"></script>
+  <!-- Services page: load dynamic service content from API -->
+  <script src="js/pages/services.js"></script>
+</body>
+</html>

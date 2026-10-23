@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAVH Studio</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@300;400;500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- Supabase removed — replaced with backend REST API via fetch() -->
+<script src="api.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Legacy Login Screen Removed - Using Unified Platform Login -->
+<!-- ===================================================================
+     SIDEBAR OVERLAY (mobile)
+     =================================================================== -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ===================================================================
+     APP SHELL
+     =================================================================== -->
+<div id="app-shell">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="fas fa-leaf"></i></div>
+      <div>
+        <h1>V.A.V.H Studio</h1>
+        <span> Management Platform</span>
+      </div>
+    </div>
+
+    <!-- Module switcher -->
+    <div class="module-tabs" style="flex-wrap:wrap;">
+      <button class="module-tab active" id="tab-mgmt" onclick="switchModule('mgmt')">Management</button>
+      <button class="module-tab" id="tab-finance" onclick="switchModule('finance')">Finance</button>
+    </div>
+
+    <!-- Management nav -->
+    <nav class="sidebar-nav" id="nav-mgmt">
+      <div class="sidebar-section-label">Management</div>
+      <button class="nav-item" data-tab="home"><span class="nav-icon"><i class="fas fa-th-large"></i></span> Dashboard</button>
+      <button class="nav-item" data-tab="analytics"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Analytics</button>
+      <button class="nav-item" data-tab="vavh-ai"><span class="nav-icon"><i class="fas fa-wand-magic-sparkles"></i></span> VAVH AI</button>
+      <button class="nav-item" data-tab="products"><span class="nav-icon"><i class="fas fa-box-open"></i></span> Product List</button>
+      <button class="nav-item" data-tab="orders"><span class="nav-icon"><i class="fas fa-shopping-cart"></i></span> Orders</button>
+      <button class="nav-item" data-tab="customers"><span class="nav-icon"><i class="fas fa-users"></i></span> Customers</button>
+      <button class="nav-item" data-tab="suppliers"><span class="nav-icon"><i class="fas fa-truck"></i></span> Suppliers</button>
+      <button class="nav-item" data-tab="chat"><span class="nav-icon"><i class="fas fa-comments"></i></span> Messages</button>
+      <button class="nav-item admin-only" data-tab="sys-users"><span class="nav-icon"><i class="fas fa-user-shield"></i></span> System Users</button>
+      <button class="nav-item admin-only" onclick="openMgmtModal('user')"><span class="nav-icon"><i class="fas fa-user-plus"></i></span> Create User</button>
+    </nav>
+
+    <!-- Finance nav -->
+    <nav class="sidebar-nav" id="nav-finance" style="display:none">
+      <div class="sidebar-section-label">Finance</div>
+      <button class="nav-item" data-fin-page="dashboard"><span class="nav-icon"><i class="fas fa-chart-line"></i></span> Dashboard</button>
+      <button class="nav-item" data-fin-page="investments"><span class="nav-icon"><i class="fas fa-briefcase"></i></span> Investments</button>
+      <button class="nav-item" data-fin-page="order-revenue"><span class="nav-icon"><i class="fas fa-shopping-bag"></i></span> Order Revenue</button>
+      <button class="nav-item" data-fin-page="due-tracker"><span class="nav-icon"><i class="fas fa-hand-holding-usd"></i></span> Due Tracker</button>
+      <button class="nav-item" data-fin-page="expenses"><span class="nav-icon"><i class="fas fa-file-invoice"></i></span> Business Expenses</button>
+      <button class="nav-item" data-fin-page="products"><span class="nav-icon"><i class="fas fa-cubes"></i></span> Product Expenses</button>
+      <button class="nav-item" data-fin-page="marketing"><span class="nav-icon"><i class="fas fa-bullhorn"></i></span> Marketing &amp; Ads</button>
+      <button class="nav-item" data-fin-page="inventory"><span class="nav-icon"><i class="fas fa-warehouse"></i></span> Inventory</button>
+      <button class="nav-item" data-fin-page="dealer-supplier"><span class="nav-icon"><i class="fas fa-handshake"></i></span> Dealer / Supplier</button>
+      <div class="sidebar-section-label">Tools</div>
+      <button class="nav-item" data-fin-page="fn-builder"><span class="nav-icon"><i class="fas fa-code"></i></span> Function Builder</button>
+      <button class="nav-item" data-fin-page="fin-messages"><span class="nav-icon"><i class="fas fa-comments"></i></span> Messages</button>
+      <div class="sidebar-section-label">Data</div>
+      <button class="nav-item" data-fin-page="reports"><span class="nav-icon"><i class="fas fa-folder-open"></i></span> Reports / Export</button>
+      <div class="sidebar-section-label">System</div>
+      <button class="nav-item admin-only" data-fin-page="fin-users"><span class="nav-icon"><i class="fas fa-users-cog"></i></span> User Management</button>
+      <button class="nav-item" data-fin-page="settings"><span class="nav-icon"><i class="fas fa-cog"></i></span> Settings</button>
+    </nav>
+
+    <!-- User info + logout -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user-info" id="sidebar-user-info" onclick="openProfile()" title="Edit Profile" style="cursor:pointer;">
+        <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+        <div style="flex:1;overflow:hidden">
+          <div class="sidebar-user-name" id="sidebar-user-name">Loading...</div>
+          <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+        </div>
+        <i class="fas fa-pen" style="font-size:10px;color:rgba(255,255,255,0.3);"></i>
+      </div>
+      <button class="btn-logout" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ─────────────────────────────────────────────── -->
+  <div class="main-content">
+
+    <!-- ============================================================
+         MODULE: MANAGEMENT
+         ============================================================ -->
+    <div class="module-view active" id="module-mgmt">
+
+      <!-- Top bar -->
+      <div class="mgmt-topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="hamburger" onclick="toggleSidebar()" style="color:white;font-size:18px;background:none;border:none;cursor:pointer;">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 id="mgmt-page-title" style="font-size:1.1rem;font-weight:600;">Dashboard</h2>
+        </div>
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" id="mgmt-search" placeholder="Search system..." onkeyup="handleGlobalSearch(this.value)">
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div id="mgmt-content" class="mgmt-content"></div>
+    </div>
+
+    <!-- ============================================================
+         MODULE: FINANCE
+         ============================================================ -->
+    <div class="module-view" id="module-finance">
+
+      <!-- Finance pages -->
+      <div class="fin-page active" id="fin-page-dashboard">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Finance Dashboard</div><div class="fin-topbar-subtitle">Business Finance Overview</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-sec btn-sm" onclick="SheetsSync.syncAll()"><i class="fas fa-sync"></i> Sync Sheets</button>
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportAll()"><i class="fas fa-download"></i> Export All</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid">
+            <div class="fin-stat-card investment"><div class="card-label">Total Investment</div><div class="card-value" id="stat-investment">BDT 0.00</div><div class="card-meta">All investor contributions</div></div>
+            <div class="fin-stat-card" style="border-top:3px solid #22c55e;"><div class="card-label" style="color:#16a34a">Order Revenue</div><div class="card-value" id="stat-order-revenue" style="color:#f8fafc">BDT 0.00</div><div class="card-meta"><span id="stat-order-revenue-count">0 completed orders</span></div></div>
+            <div class="fin-stat-card expenses"><div class="card-label">Business Expenses</div><div class="card-value" id="stat-expenses">BDT 0.00</div><div class="card-meta">Employee-related spending</div></div>
+            <div class="fin-stat-card products"><div class="card-label">Product Costs</div><div class="card-value" id="stat-products">BDT 0.00</div><div class="card-meta">Materials &amp; production</div></div>
+            <div class="fin-stat-card marketing"><div class="card-label">Marketing Cost</div><div class="card-value" id="stat-marketing">BDT 0.00</div><div class="card-meta">Ads &amp; campaigns</div></div>
+            <!-- Inventory Summary Card -->
+            <div class="fin-stat-card" style="border-top:3px solid #8b5cf6;"><div class="card-label" style="color:#c7d2fe;">Total Stock</div><div class="card-value" id="stat-total-stock" style="color:#f8fafc;">0 units</div><div class="card-meta" id="stat-unsold-stock">0 unsold</div></div>
+            <div class="fin-stat-card balance" id="balance-card" style="position:relative;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <div class="card-label">Current Balance</div>
+                <button id="balance-edit-btn" onclick="FinDashboard.toggleBalanceEdit()" title="Manually adjust balance" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;color:var(--text-secondary);transition:all 0.2s;display:flex;align-items:center;gap:4px;">
+                  <i class="fas fa-pen" style="font-size:10px;"></i> Edit
+                </button>
+              </div>
+              <div id="balance-display-wrap">
+                <div class="card-value" id="stat-balance">BDT 0.00</div>
+                <div class="card-meta" style="margin-top:6px;">
+                  <span class="card-change positive" id="balance-change">↑ Positive</span>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:4px;" id="balance-formula-hint">= Investment − Expenses + Completed Orders</div>
+                </div>
+              </div>
+              <div id="balance-edit-wrap" style="display:none;">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                  <input type="number" id="balance-manual-input" class="form-control" placeholder="Enter balance (BDT)" step="0.01"
+                    style="font-size:14px;font-weight:600;flex:1;" oninput="FinDashboard.previewManualBalance(this.value)">
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;" id="balance-edit-hint">Auto-calc: <span id="balance-auto-calc">BDT 0.00</span></div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-pri btn-sm" onclick="FinDashboard.saveManualBalance()" style="flex:1;"><i class="fas fa-check"></i> Save</button>
+                  <button class="btn btn-sec btn-sm" onclick="FinDashboard.cancelBalanceEdit()" style="flex:1;">Cancel</button>
+                  <button class="btn btn-sec btn-sm" onclick="FinDashboard.resetToAutoBalance()" title="Reset to auto-calculated" style="padding:6px 8px;"><i class="fas fa-redo" style="font-size:11px;"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Dashboard Charts Row -->
+          <div class="two-col" style="margin-bottom:20px;">
+            <div class="section-card">
+              <div class="section-header"><div><h2>&#x1F4B0; Income vs Expenses</h2><p>Investment &amp; Revenue vs Total Spending</p></div></div>
+              <div class="section-body" style="display:flex;align-items:center;justify-content:center;min-height:220px;">
+                <canvas id="dash-bar-chart" height="200"></canvas>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-header"><div><h2>&#x1F967; Expense Distribution</h2><p>Where money is being spent</p></div></div>
+              <div class="section-body" style="display:flex;align-items:center;justify-content:center;min-height:220px;">
+                <canvas id="dash-doughnut-chart" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div class="section-card">
+              <div class="section-header"><div><h2>Recent Transactions</h2><p>Latest activity across all categories</p></div></div>
+              <div class="section-body" style="padding-top:8px;padding-bottom:8px"><ul class="recent-list" id="recentList"><div class="empty-state"><div class="empty-icon">&#x1F4CA;</div><p>No transactions yet.</p></div></ul></div>
+            </div>
+            <div class="section-card">
+              <div class="section-header"><div><h2>Spending Breakdown</h2><p>How expenses are distributed</p></div></div>
+              <div class="section-body">
+                <div id="spendBreakdown"><p style="font-size:13px;color:var(--text-muted)">Add expenses to see the breakdown.</p></div>
+                <div class="divider"></div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <button class="btn btn-sec btn-sm" onclick="finNavigate('investments')">Manage Investments</button>
+                  <button class="btn btn-sec btn-sm" onclick="finNavigate('expenses')">Manage Expenses</button>
+                  <button class="btn btn-sec btn-sm" onclick="finNavigate('products')">Manage Product Costs</button>
+                  <button class="btn btn-sec btn-sm" onclick="finNavigate('marketing')">Manage Marketing</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-order-revenue">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Order Revenue</div><div class="fin-topbar-subtitle">Income from completed management orders</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-exp btn-sm" onclick="OrderRevenue.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="fin-stat-card" style="border-top:3px solid #22c55e">
+              <div class="card-label">Total Revenue</div>
+              <div class="card-value" id="or-totalRevenue" style="color:#16a34a">BDT 0.00</div>
+              <div class="card-meta" id="or-totalCount">From 0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #5b6af5">
+              <div class="card-label">This Month</div>
+              <div class="card-value" id="or-monthRevenue" style="color:#4338ca">BDT 0.00</div>
+              <div class="card-meta" id="or-monthCount">0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #f59e0b">
+              <div class="card-label">Avg Order Value</div>
+              <div class="card-value" id="or-avgRevenue" style="color:#d97706">BDT 0.00</div>
+              <div class="card-meta">Per completed order</div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>Completed Order Payments</h2><p><span id="or-recordCount">0 records</span> &nbsp;·&nbsp; Total: <strong id="or-totalAmt">BDT 0.00</strong></p></div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:12px;color:var(--text-muted)">Auto-synced from Management → Orders</span>
+                <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;" title="Live sync active"></span>
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="filter-bar"><div class="search-wrap"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="or-search" placeholder="Search order ID, customer, product..." oninput="OrderRevenue.render()"></div></div>
+              <div class="table-wrap">
+                <table><thead><tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Revenue</th>
+                  <th>Completed On</th>
+                  <th>Notes</th>
+                </tr></thead>
+                <tbody id="or-tableBody"><tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🛍️</div><p>No completed orders yet. Complete orders in Management → Orders to see revenue here.</p></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-investments">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Investments</div><div class="fin-topbar-subtitle">Track investor contributions</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportInvestments()"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn btn-pri btn-sm" onclick="Investments.openForm()"><i class="fas fa-plus"></i> Add Investment</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>Investment Records</h2><p><span id="inv-totalCount">0 records</span> &nbsp;·&nbsp; Total: <strong id="inv-totalAmount">BDT 0.00</strong></p></div>
+            </div>
+            <div class="section-body">
+              <div class="filter-bar"><div class="search-wrap"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="inv-search" placeholder="Search investor, method, notes..."></div></div>
+              <div class="table-wrap"><table><thead><tr>
+                <th data-sort="inv" data-key="investorName">Investor <span>↕</span></th>
+                <th data-sort="inv" data-key="amount">Amount <span>↕</span></th>
+                <th data-sort="inv" data-key="date">Date <span>↕</span></th>
+                <th data-sort="inv" data-key="method">Method <span>↕</span></th>
+                <th>Notes</th><th>Actions</th>
+              </tr></thead><tbody id="inv-tableBody"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💼</div><p>No investments yet.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-expenses">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Business Expenses</div><div class="fin-topbar-subtitle">Track employee spending &amp; receipts</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportExpenses()"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn btn-pri btn-sm" onclick="Expenses.openForm()"><i class="fas fa-plus"></i> Add Expense</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>Expense Records</h2><p><span id="exp-totalCount">0 records</span> &nbsp;·&nbsp; Total: <strong id="exp-totalAmount">BDT 0.00</strong></p></div>
+            </div>
+            <div class="section-body">
+              <div class="filter-bar"><div class="search-wrap"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="exp-search" placeholder="Search employee, reason..."></div></div>
+              <div class="table-wrap"><table><thead><tr>
+                <th data-sort="exp" data-key="employeeName">Employee <span>↕</span></th>
+                <th data-sort="exp" data-key="amount">Amount <span>↕</span></th>
+                <th data-sort="exp" data-key="date">Date <span>↕</span></th>
+                <th data-sort="exp" data-key="reason">Reason <span>↕</span></th>
+                <th>Attachment</th><th>Actions</th>
+              </tr></thead><tbody id="exp-tableBody"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>No expenses yet.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-products">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Product Expenses</div><div class="fin-topbar-subtitle">Track materials &amp; production costs</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportProducts()"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn btn-pri btn-sm" onclick="FinProducts.openForm()"><i class="fas fa-plus"></i> Add Product Cost</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="section-card" style="margin-bottom:16px">
+            <div class="section-header"><div><h2>Cost Per Product</h2><p>Total spend grouped by product</p></div></div>
+            <div class="section-body"><div id="productSummary"><p style="font-size:13px;color:var(--text-muted)">Product totals will appear here.</p></div></div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2>Product Expense Records</h2><p><span id="prod-totalCount">0 records</span> &nbsp;·&nbsp; Total: <strong id="prod-totalAmount">BDT 0.00</strong></p></div></div>
+            <div class="section-body">
+              <div class="filter-bar"><div class="search-wrap"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="prod-search" placeholder="Search product, item, supplier..."></div></div>
+              <div class="table-wrap"><table><thead><tr>
+                <th data-sort="prod" data-key="productName">Product <span>↕</span></th>
+                <th data-sort="prod" data-key="itemName">Item / Material <span>↕</span></th>
+                <th data-sort="prod" data-key="supplier">Supplier <span>↕</span></th>
+                <th data-sort="prod" data-key="quantity">Qty <span>↕</span></th>
+                <th data-sort="prod" data-key="cost">Cost <span>↕</span></th>
+                <th data-sort="prod" data-key="date">Date <span>↕</span></th>
+                <th>Actions</th>
+              </tr></thead><tbody id="prod-tableBody"><tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>No product expenses yet.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-marketing">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Marketing &amp; Ads</div><div class="fin-topbar-subtitle">Track advertising &amp; campaign spending</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportMarketing()"><i class="fas fa-download"></i> Export CSV</button>
+            <button class="btn btn-pri btn-sm" onclick="Marketing.openForm()"><i class="fas fa-plus"></i> Add Campaign</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="section-card" style="margin-bottom:16px">
+            <div class="section-header"><div><h2>Spend by Platform</h2></div></div>
+            <div class="section-body"><div id="platformSummary"><p style="font-size:13px;color:var(--text-muted)">Platform spending will appear here.</p></div></div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2>Marketing Records</h2><p><span id="mkt-totalCount">0 records</span> &nbsp;·&nbsp; Total: <strong id="mkt-totalAmount">BDT 0.00</strong></p></div></div>
+            <div class="section-body">
+              <div class="filter-bar"><div class="search-wrap"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="mkt-search" placeholder="Search platform, campaign..."></div></div>
+              <div class="table-wrap"><table><thead><tr>
+                <th data-sort="mkt" data-key="platform">Platform <span>↕</span></th>
+                <th data-sort="mkt" data-key="campaignName">Campaign <span>↕</span></th>
+                <th data-sort="mkt" data-key="amount">Amount <span>↕</span></th>
+                <th data-sort="mkt" data-key="date">Date <span>↕</span></th>
+                <th>Transaction ID</th><th>Notes</th><th>Actions</th>
+              </tr></thead><tbody id="mkt-tableBody"><tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📢</div><p>No marketing records yet.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-reports">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Reports &amp; Export</div><div class="fin-topbar-subtitle">Financial Summary &amp; Data Export</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="Exporter.exportPDF()" style="background: linear-gradient(135deg, rgba(91,106,245,0.9), rgba(139,92,246,0.9)); border:none;">
+              <i class="fas fa-file-pdf"></i> Full PDF Report
+            </button>
+            <button class="btn btn-pri btn-sm" onclick="Exporter.exportExcel()" style="background: linear-gradient(135deg, rgba(22,163,74,0.9), rgba(5,150,105,0.9)); border:none;">
+              <i class="fas fa-file-excel"></i> Excel Report
+            </button>
+            <button class="btn btn-exp btn-sm" onclick="Exporter.exportAll()"><i class="fas fa-download"></i> Export All CSV</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+
+          <!-- Auto-Calculated Final Summary -->
+          <div class="section-card" style="border-color:#5b6af5;margin-bottom:20px;">
+            <div class="section-header">
+              <div><h2 style="color:#f8fafc">📊 Final Summary (Auto-Calculated)</h2><p>Real-time totals across all financial data</p></div>
+              <button class="btn btn-sec btn-sm" onclick="renderReports()"><i class="fas fa-sync"></i> Refresh</button>
+            </div>
+            <div class="section-body">
+              <div class="fin-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:0">
+                <div class="fin-stat-card" style="border-top:3px solid #22c55e"><div class="card-label">Total Investment</div><div class="card-value" id="rep-total-inv" style="font-size:17px;color:#16a34a">BDT 0.00</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #ef4444"><div class="card-label">Total Expenses</div><div class="card-value" id="rep-total-exp" style="font-size:17px;color:#dc2626">BDT 0.00</div><div class="card-meta" style="font-size:11px">Business + Product + Marketing</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #06b6d4"><div class="card-label">Total Orders</div><div class="card-value" id="rep-total-orders" style="font-size:17px;color:#0e7490">0</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #8b5cf6"><div class="card-label">Products Manufactured</div><div class="card-value" id="rep-total-manufactured" style="font-size:17px;color:#7c3aed">0 units</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #f59e0b"><div class="card-label">Total Paid (Orders)</div><div class="card-value" id="rep-total-paid" style="font-size:17px;color:#d97706">BDT 0.00</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #f97316"><div class="card-label">Total Due (Orders)</div><div class="card-value" id="rep-total-due" style="font-size:17px;color:#ea580c">BDT 0.00</div></div>
+                <div class="fin-stat-card" style="border-top:3px solid #5b6af5;"><div class="card-label" style="color:#c7d2fe">Final Current Balance</div><div class="card-value" id="rep-final-balance" style="font-size:18px;font-weight:800;color:#f8fafc">BDT 0.00</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reports Charts -->
+          <div class="two-col" style="margin-bottom:20px;">
+            <div class="section-card">
+              <div class="section-header"><div><h2 style="color:#f8fafc;">&#x1F4CA; Financial Overview Chart</h2><p>Investment, Expenses &amp; Revenue at a glance</p></div></div>
+              <div class="section-body" style="display:flex;align-items:center;justify-content:center;min-height:240px;">
+                <canvas id="rep-bar-chart" height="220"></canvas>
+              </div>
+            </div>
+            <div class="section-card">
+              <div class="section-header"><div><h2 style="color:#f8fafc;">&#x1F967; Spending Breakdown</h2><p>Distribution of all outgoing costs</p></div></div>
+              <div class="section-body" style="display:flex;align-items:center;justify-content:center;min-height:240px;">
+                <canvas id="rep-pie-chart" height="220"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Total Investment -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>&#x1F539; Total Investment</h2><p><span id="rep-inv-count">0 records</span> &nbsp;·&nbsp; <strong id="rep-inv-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Investor Name</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th></tr></thead>
+              <tbody id="rep-inv-body"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💼</div><p>No investments.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Section: Business Expenses -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>🔹 Business Expenses</h2><p><span id="rep-exp-count">0 records</span> &nbsp;·&nbsp; <strong id="rep-exp-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Employee</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
+              <tbody id="rep-exp-body"><tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📋</div><p>No expenses.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Section: Product Costs -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>🔹 Product Costs</h2><p><span id="rep-prod-count">0 records</span> &nbsp;·&nbsp; <strong id="rep-prod-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Items</th><th>Product</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
+              <tbody id="rep-prod-body"><tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📦</div><p>No product costs.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Section: Marketing & Ads -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>🔹 Marketing &amp; Ads</h2><p><span id="rep-mkt-count">0 records</span> &nbsp;·&nbsp; <strong id="rep-mkt-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Platform / Campaign</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
+              <tbody id="rep-mkt-body"><tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📢</div><p>No marketing records.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Section: Order Details -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>🔹 Order Details</h2><p><span id="rep-ord-count">0 records</span> &nbsp;·&nbsp; Revenue: <strong id="rep-ord-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Item</th><th>Customer</th><th>Amount</th><th>Date</th><th>Due</th><th>Status</th><th>Note</th></tr></thead>
+              <tbody id="rep-ord-body"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🛒</div><p>No orders.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Section: Dealer / Supplier Details -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>🔹 Dealer / Supplier Details</h2><p><span id="rep-ds-count">0 records</span> &nbsp;·&nbsp; <strong id="rep-ds-total">BDT 0.00</strong></p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap"><table><thead><tr><th>Supplier</th><th>Product</th><th>Amount</th><th>Date</th><th>Due</th><th>Status</th><th>Note</th></tr></thead>
+              <tbody id="rep-ds-body"><tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🤝</div><p>No supplier records.</p></div></td></tr></tbody></table></div>
+            </div>
+          </div>
+
+          <!-- Quick Export & Danger Zone -->
+          <div class="section-card">
+            <div class="section-header"><div><h2>Quick CSV Export</h2></div></div>
+            <div class="section-body"><div style="display:flex;flex-wrap:wrap;gap:10px">
+              <button class="btn btn-exp" onclick="Exporter.exportInvestments()">Investments CSV</button>
+              <button class="btn btn-exp" onclick="Exporter.exportExpenses()">Expenses CSV</button>
+              <button class="btn btn-exp" onclick="Exporter.exportProducts()">Product Costs CSV</button>
+              <button class="btn btn-exp" onclick="Exporter.exportMarketing()">Marketing CSV</button>
+            </div></div>
+          </div>
+          <div class="section-card" style="border-color:rgba(239,68,68,0.24)">
+            <div class="section-header"><div><h2 style="color:#fecaca">Danger Zone</h2><p>Permanently delete stored data. Cannot be undone.</p></div></div>
+            <div class="section-body"><div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-del btn-sm" onclick="clearSection('investments','Investments')"><i class="fas fa-trash"></i> Clear Investments</button>
+              <button class="btn btn-del btn-sm" onclick="clearSection('expenses','Business Expenses')"><i class="fas fa-trash"></i> Clear Expenses</button>
+              <button class="btn btn-del btn-sm" onclick="clearSection('products','Product Expenses')"><i class="fas fa-trash"></i> Clear Product Costs</button>
+              <button class="btn btn-del btn-sm" onclick="clearSection('marketing','Marketing')"><i class="fas fa-trash"></i> Clear Marketing</button>
+              <button class="btn btn-del" onclick="clearAllFinance()"><i class="fas fa-trash"></i> Clear ALL Financial Data</button>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-fin-users">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">User Management</div><div class="fin-topbar-subtitle">Manage system accounts &amp; access</div></div>
+          <div class="fin-topbar-actions"><button class="btn btn-pri btn-sm" onclick="UserMgmt.openCreate()"><i class="fas fa-user-plus"></i> Create User</button></div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:24px">
+            <div class="fin-stat-card"><div class="card-label">Total Users</div><div class="card-value" id="um-totalUsers" style="font-size:22px">0</div></div>
+            <div class="fin-stat-card"><div class="card-label">Admins</div><div class="card-value" id="um-totalAdmins" style="font-size:22px">0</div></div>
+            <div class="fin-stat-card"><div class="card-label">Standard Users</div><div class="card-value" id="um-totalStandard" style="font-size:22px">0</div></div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2>User Accounts</h2></div><div class="section-actions"><button class="btn btn-pri btn-sm" onclick="UserMgmt.openCreate()"><i class="fas fa-user-plus"></i> Create User</button></div></div>
+            <div class="section-body"><div id="userListContainer"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fin-page" id="fin-page-settings">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Settings</div><div class="fin-topbar-subtitle">Google Sheets Integration</div></div>
+          <div class="fin-topbar-actions"><button class="btn btn-pri btn-sm" id="btnSyncNow" onclick="manualSync()"><i class="fas fa-sync"></i> Sync Now</button></div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(175px,1fr));margin-bottom:20px">
+            <div class="fin-stat-card" id="statusCard"><div class="card-label">Connection Status</div><div class="card-value" id="statusText" style="font-size:16px">Not Connected</div><div class="card-meta" id="statusMeta">Configure below</div></div>
+            <div class="fin-stat-card"><div class="card-label">Last Synced</div><div class="card-value last-sync-time" id="lastSyncTime" style="font-size:14px">Never</div><div class="card-meta"><span class="sync-status-dot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9ca3af;margin-right:4px"></span>Auto-sync status</div></div>
+            <div class="fin-stat-card"><div class="card-label">Spreadsheet</div><div class="card-value" id="sheetName" style="font-size:14px">—</div><div class="card-meta"><a href="#" id="sheetLink" target="_blank" style="color:var(--accent);font-size:12px">Open in Google Sheets →</a></div></div>
+          </div>
+          <div class="section-card" style="margin-bottom:20px">
+            <div class="section-header"><div><h2>How to Connect Google Sheets</h2><p>Follow these steps — takes about 5 minutes</p></div></div>
+            <div class="section-body">
+              <div class="setup-step"><div class="step-num">1</div><div class="step-content"><h4>Create a Google Sheet</h4><p>Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → create a new spreadsheet → name it <strong>"Vavh Finance"</strong>. Copy the Spreadsheet ID from the URL.</p></div></div>
+              <div class="setup-step"><div class="step-num">2</div><div class="step-content"><h4>Enable Google Sheets API</h4><p>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a> → enable <strong>Google Sheets API</strong>.</p></div></div>
+              <div class="setup-step"><div class="step-num">3</div><div class="step-content"><h4>Get OAuth 2.0 Access Token</h4><p>In Cloud Console → <strong>APIs &amp; Services → Credentials</strong> → Create OAuth 2.0 Client ID → Use <a href="https://developers.google.com/oauthplayground/" target="_blank">OAuth Playground</a> → scope: <code>https://www.googleapis.com/auth/spreadsheets</code></p></div></div>
+              <div class="setup-step"><div class="step-num">4</div><div class="step-content"><h4>Paste credentials below &amp; Test</h4><p>Enter your Spreadsheet ID and Access Token, click <strong>Test Connection</strong>, then <strong>Save Settings</strong>.</p></div></div>
+            </div>
+          </div>
+          <div class="section-card" style="margin-bottom:20px">
+            <div class="section-header"><div><h2>API Credentials</h2><p>Saved only in this browser</p></div></div>
+            <div class="section-body">
+              <div class="form-group"><label class="form-label">Spreadsheet ID <span class="required">*</span></label><input type="text" id="spreadsheetId" class="form-control" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"></div>
+              <div class="form-group"><label class="form-label">OAuth 2.0 Access Token <span class="required">*</span></label><textarea id="accessToken" class="form-control" rows="3" placeholder="ya29.a0AfH6SMB..."></textarea></div>
+              <div class="token-status none" id="tokenStatus">Not tested yet</div>
+              <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+                <button class="btn btn-sec" onclick="testConnection()">Test Connection</button>
+                <button class="btn btn-pri" onclick="saveCredentials()">Save Settings</button>
+                <button class="btn btn-sec" onclick="clearCredentials()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2>Sync Settings</h2></div></div>
+            <div class="section-body">
+              <div class="sync-toggle-row"><div class="toggle-info"><h4>Auto-Sync on Every Change</h4><p>Sync automatically on add, edit, or delete</p></div><label class="toggle"><input type="checkbox" id="autoSyncToggle" onchange="toggleAutoSync(this)"><span class="toggle-slider"></span></label></div>
+              <div class="sync-toggle-row"><div class="toggle-info"><h4>Manual Sync</h4><p>Push all data now</p></div><button class="btn btn-pri btn-sm" onclick="manualSync()">Sync All Now</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           DUE TRACKER PAGE (inside module-finance)
+           ============================================================ -->
+      <div class="fin-page" id="fin-page-due-tracker">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div>
+            <div class="fin-topbar-title">Due Tracker</div>
+            <div class="fin-topbar-subtitle">Track all payment obligations across orders</div>
+          </div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="DueTracker.openCreateModal()"><i class="fas fa-plus"></i> Create Due</button>
+            <button class="btn btn-exp btn-sm" onclick="DueTracker.exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+
+          <!-- Summary stat cards -->
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(185px,1fr));margin-bottom:24px;">
+            <div class="fin-stat-card" style="border-top:3px solid #06b6d4;">
+              <div class="card-label">Customer Will Pay</div>
+              <div class="card-value" id="due-stat-cust-pay" style="color:#0e7490;">BDT 0.00</div>
+              <div class="card-meta" id="due-stat-cust-pay-count">0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #f59e0b;">
+              <div class="card-label">Dealer Will Pay</div>
+              <div class="card-value" id="due-stat-dealer-pay" style="color:#b45309;">BDT 0.00</div>
+              <div class="card-meta" id="due-stat-dealer-pay-count">0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #ef4444;">
+              <div class="card-label">I Owe Customer</div>
+              <div class="card-value" id="due-stat-i-owe-cust" style="color:#b91c1c;">BDT 0.00</div>
+              <div class="card-meta" id="due-stat-i-owe-cust-count">0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #22c55e;">
+              <div class="card-label">I Owe Dealer</div>
+              <div class="card-value" id="due-stat-i-owe-dealer" style="color:#15803d;">BDT 0.00</div>
+              <div class="card-meta" id="due-stat-i-owe-dealer-count">0 orders</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #8b5cf6;">
+              <div class="card-label">Net I Am Owed</div>
+              <div class="card-value" id="due-stat-net" style="color:#6d28d9;">BDT 0.00</div>
+              <div class="card-meta">Customer+Dealer − My obligations</div>
+            </div>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>All Due Records</h2><p id="due-record-count">0 records</p></div>
+              <div class="section-actions">
+                <div class="filter-bar" style="margin:0;gap:8px;">
+                  <div class="search-wrap" style="min-width:200px;">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
+                    <input type="text" id="due-search" placeholder="Search order, customer, product..." oninput="DueTracker.render()">
+                  </div>
+                  <select id="due-filter-type" class="form-control" style="width:200px;padding:9px 12px;" onchange="DueTracker.render()">
+                    <option value="">All Due Types</option>
+                    <option value="Customer will pay">💳 Customer will pay</option>
+                    <option value="Dealer will pay">🏪 Dealer will pay</option>
+                    <option value="I need to pay customer">💸 I owe customer</option>
+                    <option value="I need to pay dealer">🤝 I owe dealer</option>
+                  </select>
+                  <select id="due-filter-status" class="form-control" style="width:140px;padding:9px 12px;" onchange="DueTracker.render()">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="section-body" style="padding:0;">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID / Ref</th>
+                      <th>Party</th>
+                      <th>Description</th>
+                      <th>Total Due</th>
+                      <th>Paid</th>
+                      <th>Remaining</th>
+                      <th>Finance Due</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="due-tableBody">
+                    <tr><td colspan="10"><div class="empty-state"><div class="empty-icon">💰</div><p>No due records yet. Create a due directly or assign Finance Name Due when creating orders.</p></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      </div><!-- end fin-page-due-tracker -->
+
+      <!-- Due Tracker Create/Edit Modal -->
+      <div class="fin-modal-overlay" id="dueModal">
+        <div class="fin-modal" style="max-width:520px;">
+          <div class="fin-modal-header">
+            <h3 id="due-modal-title">Create Due Record</h3>
+            <button class="fin-modal-close" onclick="FU.closeModal('dueModal')">&times;</button>
+          </div>
+          <div class="fin-modal-body">
+            <form id="dueForm" autocomplete="off">
+              <div class="form-group">
+                <label class="form-label">Party Name <span class="required">*</span></label>
+                <input type="text" name="partyName" id="due-party-name" class="form-control" placeholder="Customer or dealer name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <input type="text" name="description" class="form-control" placeholder="e.g. Order #123, fabric purchase...">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Finance Due Type <span class="required">*</span></label>
+                <select name="financeNameDue" id="due-type-select" class="form-control" required onchange="DueTracker.updateModalCalc()">
+                  <option value="">— Select type —</option>
+                  <option value="Customer will pay">💳 Customer will pay</option>
+                  <option value="Dealer will pay">🏪 Dealer will pay</option>
+                  <option value="I need to pay customer">💸 I need to pay customer</option>
+                  <option value="I need to pay dealer">🤝 I need to pay dealer</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Total Due Amount (BDT) <span class="required">*</span></label>
+                  <input type="number" name="dueTotal" id="due-modal-total" class="form-control" placeholder="0.00" step="0.01" min="0" required oninput="DueTracker.updateModalCalc()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Amount Already Paid (BDT)</label>
+                  <input type="number" name="duePaid" id="due-modal-paid" class="form-control" placeholder="0.00" step="0.01" min="0" value="0" oninput="DueTracker.updateModalCalc()">
+                </div>
+              </div>
+              <!-- Live remaining summary -->
+              <div id="due-modal-summary" style="display:none;background:#f0ede8;border:1.5px solid #cdd2e0;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+                <div style="text-align:center;flex:1;">
+                  <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Total</div>
+                  <div id="due-modal-sum-total" style="font-size:15px;font-weight:700;color:#374151;">BDT 0.00</div>
+                </div>
+                <div style="color:#9ca3af;font-size:16px;">−</div>
+                <div style="text-align:center;flex:1;">
+                  <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Paid</div>
+                  <div id="due-modal-sum-paid" style="font-size:15px;font-weight:700;color:#16a34a;">BDT 0.00</div>
+                </div>
+                <div style="color:#9ca3af;font-size:16px;">=</div>
+                <div style="text-align:center;flex:1;">
+                  <div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Remaining</div>
+                  <div id="due-modal-sum-remaining" style="font-size:15px;font-weight:700;color:#d97706;">BDT 0.00</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Date <span class="required">*</span></label>
+                  <input type="date" name="dueDate" id="due-modal-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Due Status</label>
+                  <select name="dueStatus" class="form-control">
+                    <option value="Pending">Pending</option>
+                    <option value="Partially Paid">Partially Paid</option>
+                    <option value="Settled">Settled</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea name="notes" class="form-control" placeholder="Additional remarks..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="fin-modal-footer">
+            <button type="button" class="btn btn-sec" onclick="FU.closeModal('dueModal')">Cancel</button>
+            <button type="button" class="btn btn-pri" onclick="DueTracker.saveRecord()"><i class="fas fa-save"></i> Save Due</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           INVENTORY PAGE
+           ============================================================ -->
+      <div class="fin-page" id="fin-page-inventory">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Inventory Management</div><div class="fin-topbar-subtitle">Track stock levels across all products</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="Inventory.openAdjustForm()"><i class="fas fa-plus"></i> Stock Adjustment</button>
+            <button class="btn btn-exp btn-sm" onclick="Inventory.exportCSV()"><i class="fas fa-download"></i> Export</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div class="fin-stat-card" style="border-top:3px solid #8b5cf6">
+              <div class="card-label">Total Products</div>
+              <div class="card-value" id="inv-stat-products" style="color:#7c3aed">0</div>
+              <div class="card-meta">unique products tracked</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #22c55e">
+              <div class="card-label">Total Stock</div>
+              <div class="card-value" id="inv-stat-total" style="color:#16a34a">0 units</div>
+              <div class="card-meta">across all products</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #f59e0b">
+              <div class="card-label">Manufactured</div>
+              <div class="card-value" id="inv-stat-manufactured" style="color:#d97706">0 units</div>
+              <div class="card-meta">total produced</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #ef4444">
+              <div class="card-label">Sold / Out</div>
+              <div class="card-value" id="inv-stat-sold" style="color:#dc2626">0 units</div>
+              <div class="card-meta">from management orders</div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>Inventory Overview</h2><p>Stock per product — auto-synced from Management orders</p></div>
+              <div class="section-actions">
+                <div class="search-wrap" style="min-width:200px"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="inv-page-search" placeholder="Search product..." oninput="Inventory.render()"></div>
+              </div>
+            </div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap">
+                <table><thead><tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Manufactured</th>
+                  <th>Sold</th>
+                  <th>Unsold Stock</th>
+                  <th>Status</th>
+                  <th>Adjustments</th>
+                  <th>Actions</th>
+                </tr></thead>
+                <tbody id="inv-tableBody"><tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📦</div><p>No products found. Add products in Management → Products.</p></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header"><div><h2>Stock Movement Log</h2><p>History of all inventory changes</p></div></div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap">
+                <table><thead><tr>
+                  <th>Date</th><th>Product</th><th>Type</th><th>Qty Change</th><th>Reference</th><th>Note</th>
+                </tr></thead>
+                <tbody id="inv-log-body"><tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>No stock movements recorded yet.</p></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Adjustment Modal -->
+      <div class="fin-modal-overlay" id="inventoryModal">
+        <div class="fin-modal" style="max-width:480px">
+          <div class="fin-modal-header">
+            <h3 id="inv-modal-title">Stock Adjustment</h3>
+            <button class="fin-modal-close" onclick="FU.closeModal('inventoryModal')">&times;</button>
+          </div>
+          <div class="fin-modal-body">
+            <form id="inventoryForm" autocomplete="off">
+              <div class="form-group">
+                <label class="form-label">Product <span class="required">*</span></label>
+                <select id="inv-form-product" name="productId" class="form-control" required>
+                  <option value="">— Select product —</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Adjustment Type <span class="required">*</span></label>
+                  <select name="adjType" id="inv-form-type" class="form-control" required>
+                    <option value="manufacture">+ Manufactured (increase stock)</option>
+                    <option value="adjustment_add">+ Manual Add</option>
+                    <option value="adjustment_sub">− Manual Remove</option>
+                    <option value="return">+ Return / Restock</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Quantity <span class="required">*</span></label>
+                  <input type="number" name="qty" class="form-control" min="1" required placeholder="e.g. 10">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Date</label>
+                  <input type="date" name="date" id="inv-form-date" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Reference</label>
+                  <input type="text" name="reference" class="form-control" placeholder="e.g. Batch #12">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note</label>
+                <textarea name="note" class="form-control" rows="2" placeholder="Optional note..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="fin-modal-footer">
+            <button class="btn btn-sec" onclick="FU.closeModal('inventoryModal')">Cancel</button>
+            <button class="btn btn-pri" onclick="Inventory.saveAdjustment()"><i class="fas fa-save"></i> Save Adjustment</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           DEALER / SUPPLIER DETAILS PAGE
+           ============================================================ -->
+      <div class="fin-page" id="fin-page-dealer-supplier">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Dealer / Supplier Details</div><div class="fin-topbar-subtitle">Track supplier payments and dues</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="DealerSupplier.openForm()"><i class="fas fa-plus"></i> Add Record</button>
+            <button class="btn btn-exp btn-sm" onclick="DealerSupplier.exportCSV()"><i class="fas fa-download"></i> Export</button>
+          </div>
+        </header>
+        <div class="fin-page-content">
+          <div class="fin-stats-grid" style="grid-template-columns:repeat(4,1fr)">
+            <div class="fin-stat-card" style="border-top:3px solid #5b6af5">
+              <div class="card-label">Total Records</div>
+              <div class="card-value" id="ds-stat-total">0</div>
+              <div class="card-meta">supplier transactions</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #ef4444">
+              <div class="card-label">Total Amount</div>
+              <div class="card-value" id="ds-stat-amount" style="color:#dc2626">BDT 0.00</div>
+              <div class="card-meta">total purchase value</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #22c55e">
+              <div class="card-label">Total Paid</div>
+              <div class="card-value" id="ds-stat-paid" style="color:#16a34a">BDT 0.00</div>
+              <div class="card-meta">settled amount</div>
+            </div>
+            <div class="fin-stat-card" style="border-top:3px solid #f59e0b">
+              <div class="card-label">Total Due</div>
+              <div class="card-value" id="ds-stat-due" style="color:#d97706">BDT 0.00</div>
+              <div class="card-meta">outstanding balance</div>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-header">
+              <div><h2>Supplier Transaction Records</h2><p><span id="ds-record-count">0 records</span></p></div>
+              <div class="section-actions">
+                <div class="search-wrap" style="min-width:220px"><span class="search-icon"><i class="fas fa-search"></i></span><input type="text" id="ds-search" placeholder="Search supplier, product..." oninput="DealerSupplier.render()"></div>
+              </div>
+            </div>
+            <div class="section-body" style="padding:0">
+              <div class="table-wrap">
+                <table><thead><tr>
+                  <th>Supplier / Dealer</th>
+                  <th>Product</th>
+                  <th>Amount</th>
+                  <th>Paid</th>
+                  <th>Due</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Note</th>
+                  <th>Actions</th>
+                </tr></thead>
+                <tbody id="ds-tableBody"><tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🤝</div><p>No supplier records yet.</p></div></td></tr></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dealer Supplier Modal -->
+      <div class="fin-modal-overlay" id="dealerSupplierModal">
+        <div class="fin-modal" style="max-width:520px">
+          <div class="fin-modal-header">
+            <h3 id="ds-modal-title">Add Dealer / Supplier Record</h3>
+            <button class="fin-modal-close" onclick="FU.closeModal('dealerSupplierModal')">&times;</button>
+          </div>
+          <div class="fin-modal-body">
+            <form id="dealerSupplierForm" autocomplete="off">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Supplier / Dealer Name <span class="required">*</span></label>
+                  <input type="text" name="supplierName" class="form-control" placeholder="e.g. Dhaka Fabric House" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Product <span class="required">*</span></label>
+                  <input type="text" name="product" class="form-control" placeholder="Product / item name" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Total Amount (BDT) <span class="required">*</span></label>
+                  <input type="number" name="amount" class="form-control" placeholder="0.00" step="0.01" min="0" required oninput="DealerSupplier.updateCalc()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Amount Paid (BDT)</label>
+                  <input type="number" name="paid" class="form-control" placeholder="0.00" step="0.01" min="0" value="0" oninput="DealerSupplier.updateCalc()">
+                </div>
+              </div>
+              <div id="ds-calc-summary" style="display:flex;gap:12px;background:#f0ede8;border:1.5px solid #cdd2e0;border-radius:10px;padding:10px 14px;margin-bottom:14px;">
+                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Total</div><div id="ds-sum-total" style="font-size:14px;font-weight:700;color:#374151;">BDT 0.00</div></div>
+                <div style="color:#9ca3af;font-size:16px;align-self:center;">−</div>
+                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Paid</div><div id="ds-sum-paid" style="font-size:14px;font-weight:700;color:#16a34a;">BDT 0.00</div></div>
+                <div style="color:#9ca3af;font-size:16px;align-self:center;">=</div>
+                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;">Due</div><div id="ds-sum-due" style="font-size:14px;font-weight:700;color:#d97706;">BDT 0.00</div></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Date <span class="required">*</span></label>
+                  <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select name="status" class="form-control">
+                    <option value="Pending">Pending</option>
+                    <option value="Partially Paid">Partially Paid</option>
+                    <option value="Settled">Settled</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note</label>
+                <textarea name="note" class="form-control" rows="2" placeholder="Additional remarks..."></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="fin-modal-footer">
+            <button class="btn btn-sec" onclick="FU.closeModal('dealerSupplierModal')">Cancel</button>
+            <button class="btn btn-pri" onclick="DealerSupplier.saveRecord()"><i class="fas fa-save"></i> Save Record</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           FUNCTION BUILDER PAGE (inside module-finance)
+           ============================================================ -->
+      <div class="fin-page" id="fin-page-fn-builder">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Function Builder</div><div class="fin-topbar-subtitle">Create custom no-code calculation functions</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="FnBuilder.openCreate()"><i class="fas fa-plus"></i> New Function</button>
+          </div>
+        </header>
+        <div class="fin-page-content" id="fnb-main-content">
+
+          <!-- Function list view -->
+          <div id="fnb-list-view">
+            <div class="fnb-toolbar">
+              <div class="fnb-search-wrap">
+                <i class="fas fa-search fnb-search-icon"></i>
+                <input type="text" id="fnb-search" placeholder="Search functions..." oninput="FnBuilder.renderList()">
+              </div>
+              <div class="fnb-count-badge" id="fnb-count">0 functions</div>
+            </div>
+            <div id="fnb-empty-state" class="fnb-empty">
+              <div class="fnb-empty-icon"><i class="fas fa-code"></i></div>
+              <h3>No functions yet</h3>
+              <p>Create your first custom function to calculate Customer Due, Dealer Due, or any custom business logic.</p>
+              <button class="btn btn-pri" onclick="FnBuilder.openCreate()"><i class="fas fa-plus"></i> Create Function</button>
+            </div>
+            <div id="fnb-cards-grid" class="fnb-cards-grid"></div>
+          </div>
+
+          <!-- Create / Edit view -->
+          <div id="fnb-editor-view" style="display:none">
+            <div class="fnb-editor-header">
+              <button class="fnb-back-btn" onclick="FnBuilder.showList()"><i class="fas fa-arrow-left"></i> Back</button>
+              <h2 id="fnb-editor-title">Create Function</h2>
+              <button class="btn btn-pri" onclick="FnBuilder.save()"><i class="fas fa-save"></i> Save</button>
+            </div>
+
+            <div class="fnb-editor-layout">
+              <!-- Left: Builder -->
+              <div class="fnb-builder-panel">
+
+                <div class="fnb-section-card">
+                  <div class="fnb-section-title"><i class="fas fa-info-circle"></i> Function Details</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Function Name <span class="required">*</span></label>
+                      <input type="text" id="fnb-name" class="form-control" placeholder="e.g. Customer Due">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Category</label>
+                      <select id="fnb-category" class="form-control">
+                        <option value="finance">Finance</option>
+                        <option value="customer">Customer</option>
+                        <option value="dealer">Dealer</option>
+                        <option value="order">Order</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" id="fnb-desc" class="form-control" placeholder="What does this function calculate?">
+                  </div>
+                </div>
+
+                <div class="fnb-section-card">
+                  <div class="fnb-section-title">
+                    <i class="fas fa-sign-in-alt"></i> Inputs
+                    <button class="fnb-add-btn" onclick="FnBuilder.addInput()"><i class="fas fa-plus"></i> Add Input</button>
+                  </div>
+                  <div id="fnb-inputs-list"></div>
+                  <div id="fnb-inputs-empty" class="fnb-mini-empty">No inputs yet. Click "Add Input" to begin.</div>
+                </div>
+
+                <div class="fnb-section-card">
+                  <div class="fnb-section-title">
+                    <i class="fas fa-sitemap"></i> Logic Steps
+                    <div style="display:flex;gap:6px;margin-left:auto;">
+                      <button class="fnb-add-btn" onclick="FnBuilder.addStep('math')"><i class="fas fa-calculator"></i> Math</button>
+                      <button class="fnb-add-btn fnb-add-btn-blue" onclick="FnBuilder.addStep('condition')"><i class="fas fa-code-branch"></i> If/Else</button>
+                    </div>
+                  </div>
+                  <div id="fnb-steps-list"></div>
+                  <div id="fnb-steps-empty" class="fnb-mini-empty">No steps yet. Add a Math or If/Else step.</div>
+                </div>
+
+                <div class="fnb-section-card">
+                  <div class="fnb-section-title"><i class="fas fa-sign-out-alt"></i> Output</div>
+                  <div class="form-group">
+                    <label class="form-label">Result Variable</label>
+                    <select id="fnb-output-var" class="form-control">
+                      <option value="">— select variable —</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Output Label</label>
+                    <input type="text" id="fnb-output-label" class="form-control" placeholder="e.g. Amount Due">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <select id="fnb-output-format" class="form-control">
+                      <option value="number">Number</option>
+                      <option value="currency">Currency (BDT)</option>
+                      <option value="percent">Percentage (%)</option>
+                      <option value="text">Text</option>
+                    </select>
+                  </div>
+                </div>
+
+              </div><!-- end fnb-builder-panel -->
+
+              <!-- Right: Live Preview -->
+              <div class="fnb-preview-panel">
+                <div class="fnb-section-card fnb-preview-sticky">
+                  <div class="fnb-section-title"><i class="fas fa-eye"></i> Live Preview</div>
+                  <div id="fnb-preview-inputs" class="fnb-preview-inputs"></div>
+                  <button class="btn btn-pri" style="width:100%;margin-top:12px" onclick="FnBuilder.runPreview()"><i class="fas fa-play"></i> Run</button>
+                  <div id="fnb-preview-result" class="fnb-preview-result" style="display:none"></div>
+                  <div id="fnb-preview-trace" class="fnb-preview-trace" style="display:none"></div>
+                </div>
+              </div>
+
+            </div><!-- end fnb-editor-layout -->
+          </div><!-- end fnb-editor-view -->
+
+        </div><!-- end fin-page-content -->
+      </div><!-- end fin-page-fn-builder -->
+
+      <!-- ============================================================
+           FINANCE MESSAGES PAGE — shared chat with Management
+           ============================================================ -->
+      <div class="fin-page" id="fin-page-fin-messages">
+        <header class="fin-topbar">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <div><div class="fin-topbar-title">Messages</div><div class="fin-topbar-subtitle">Internal team communication — shared with Management</div></div>
+          <div class="fin-topbar-actions">
+            <button class="btn btn-pri btn-sm" onclick="openChatModal()"><i class="fas fa-plus"></i> New Chat</button>
+          </div>
+        </header>
+        <div class="fin-page-content" id="fin-messages-content" style="padding:16px;">
+          <div style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fas fa-comments" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
+            <p>Loading messages…</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end module-finance -->
+
+  </div><!-- end main-content -->
+</div><!-- end app-shell -->
+
+<!-- ===================================================================
+     MANAGEMENT MODALS
+     =================================================================== -->
+<div id="mgmt-modal-overlay" class="modal-overlay-mgmt hidden">
+  <!-- Generic CRUD modal -->
+  <div id="mgmt-generic-modal" class="modal-box-mgmt">
+    <div class="modal-header-mgmt">
+      <h3 id="mgmt-modal-title">Item</h3>
+      <button class="modal-close-btn" onclick="closeMgmtModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="mgmt-modal-body"></div>
+  </div>
+
+  <!-- Profile modal -->
+  <div id="mgmt-profile-modal" class="modal-box-mgmt hidden">
+    <div class="modal-header-mgmt">
+      <h3>Profile Settings</h3>
+      <button class="modal-close-btn" onclick="closeMgmtModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="profile-modal">
+      <img id="preview-avatar" src="" style="width:90px;height:90px;border-radius:50%;margin-bottom:14px;border:2px solid var(--accent-green);object-fit:cover;">
+      <input type="file" id="avatar-upload" accept="image/*" hidden onchange="previewImage(this)">
+      <br>
+      <button class="btn-primary-mgmt" style="background:transparent;border:1px solid white;margin-bottom:18px;font-size:12px;" onclick="document.getElementById('avatar-upload').click()">Change Photo</button>
+      <form onsubmit="handleProfileUpdate(event)" style="text-align:left;">
+        <label class="form-label-mgmt">Full Name</label>
+        <input type="text" id="prof-name" class="form-input-mgmt" required style="margin-bottom:12px;">
+        <label class="form-label-mgmt">Designation</label>
+        <input type="text" id="prof-designation" class="form-input-mgmt" required style="margin-bottom:12px;">
+        <label class="form-label-mgmt">New Password (leave blank to keep current)</label>
+        <input type="password" id="prof-pass" class="form-input-mgmt" style="margin-bottom:18px;">
+        <button type="submit" class="btn-primary-mgmt" style="width:100%">Save Profile</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chat creation modal -->
+  <div id="mgmt-chat-modal" class="modal-box-mgmt hidden">
+    <div class="modal-header-mgmt">
+      <h3>Start New Chat</h3>
+      <button class="modal-close-btn" onclick="closeChatModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div>
+      <label class="form-label-mgmt" style="margin-bottom:8px;display:block;">Select Users</label>
+      <div id="user-list-chat" style="display:grid;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:14px;"></div>
+      <input type="text" id="group-name-input" class="form-input-mgmt" placeholder="Group Name (optional)" style="margin-bottom:14px;">
+      <button class="btn-primary-mgmt" onclick="createChatGroup()" style="width:100%">Create Chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     FINANCE MODALS
+     =================================================================== -->
+
+<!-- User Management Modal (shared) -->
+<div class="fin-modal-overlay" id="userModal">
+  <div class="fin-modal" style="max-width:560px">
+    <div class="fin-modal-header">
+      <h3 id="userModalTitle">Create New User</h3>
+      <button class="fin-modal-close" onclick="FU.closeModal('userModal')">&times;</button>
+    </div>
+    <div class="fin-modal-body">
+      <form id="userForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full Name <span class="required">*</span></label><input type="text" id="uFormName" class="form-control" required></div>
+          <div class="form-group"><label class="form-label">Username <span class="required">*</span></label><input type="text" id="uFormUsername" class="form-control" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Password <span class="required">*</span></label><input type="password" id="uFormPassword" class="form-control" placeholder="Min 6 characters"></div>
+          <div class="form-group"><label class="form-label">Role <span class="required">*</span></label><select id="uFormRole" class="form-control"><option value="user">User — Standard</option><option value="admin">Admin — Full Access</option></select></div>
+        </div>
+        <div class="form-group"><label class="form-label">Designation / Department</label><input type="text" id="uFormNotes" class="form-control" placeholder="e.g. Finance Team"></div>
+        <div class="fin-modal-footer">
+          <button type="button" class="btn btn-sec" onclick="FU.closeModal('userModal')">Cancel</button>
+          <button type="submit" class="btn btn-pri" id="uFormSubmitBtn">Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Investment Modal -->
+<div class="fin-modal-overlay" id="investmentModal">
+  <div class="fin-modal">
+    <div class="fin-modal-header"><h3 id="inv-modalTitle">Add New Investment</h3><button class="fin-modal-close" onclick="FU.closeModal('investmentModal')">&times;</button></div>
+    <div class="fin-modal-body">
+      <form id="investmentForm" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label">Investor Name <span class="required">*</span></label>
+          <div class="investor-combo" id="investorComboWrap">
+            <input type="text" name="investorName" id="investorNameInput" class="form-control" placeholder="Type or select investor name..." autocomplete="off" required>
+            <div class="investor-dropdown" id="investorDropdown"></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Amount (BDT ) <span class="required">*</span></label><input type="number" name="amount" class="form-control" placeholder="0.00" min="0" step="0.01" required></div>
+          <div class="form-group"><label class="form-label">Date <span class="required">*</span></label><input type="date" name="date" class="form-control" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Payment Method</label><select name="method" class="form-control"><option value="Cash">Cash</option><option value="Bank">Bank Transfer</option><option value="Mobile Banking">Mobile Banking (bKash / Nagad)</option></select></div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea name="notes" class="form-control" placeholder="Additional notes..."></textarea></div>
+        <div class="fin-modal-footer"><button type="button" class="btn btn-sec" onclick="FU.closeModal('investmentModal')">Cancel</button><button type="submit" class="btn btn-pri">Save Investment</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="fin-modal-overlay" id="expenseModal">
+  <div class="fin-modal">
+    <div class="fin-modal-header"><h3 id="exp-modalTitle">Add Business Expense</h3><button class="fin-modal-close" onclick="FU.closeModal('expenseModal')">&times;</button></div>
+    <div class="fin-modal-body">
+      <form id="expenseForm" autocomplete="off">
+        <div class="form-group"><label class="form-label">Employee Name <span class="required">*</span></label><input type="text" name="employeeName" class="form-control" placeholder="e.g. Karim Hossain" required></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Amount (BDT ) <span class="required">*</span></label><input type="number" name="amount" class="form-control" placeholder="0.00" min="0" step="0.01" required></div>
+          <div class="form-group"><label class="form-label">Date <span class="required">*</span></label><input type="date" name="date" class="form-control" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Reason / Description <span class="required">*</span></label><textarea name="reason" class="form-control" placeholder="What was this expense for?" required></textarea></div>
+        <div class="form-group"><label class="form-label">Attachment (Receipt / Invoice)</label>
+          <div class="file-upload"><input type="file" id="attachmentInput" accept="image/*,.pdf"><div style="font-size:24px;margin-bottom:8px;">📎</div><p>Click to upload receipt or invoice</p><div class="filename" id="exp-fileName"></div></div>
+        </div>
+        <div class="fin-modal-footer"><button type="button" class="btn btn-sec" onclick="FU.closeModal('expenseModal')">Cancel</button><button type="submit" class="btn btn-pri">Save Expense</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="fin-modal-overlay" id="productModal">
+  <div class="fin-modal">
+    <div class="fin-modal-header"><h3 id="prod-modalTitle">Add Product Expense</h3><button class="fin-modal-close" onclick="FU.closeModal('productModal')">&times;</button></div>
+    <div class="fin-modal-body">
+      <form id="productForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Product Name <span class="required">*</span></label><input type="text" name="productName" class="form-control" placeholder="e.g. T-Shirt" required></div>
+          <div class="form-group"><label class="form-label">Item / Material <span class="required">*</span></label><input type="text" name="itemName" class="form-control" placeholder="e.g. Cotton fabric" required></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dealer / Supplier</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select name="supplier" id="fin-supplier-select" class="form-control" style="flex:1">
+              <option value="">— Select or type below —</option>
+            </select>
+            <button type="button" class="btn btn-sec btn-sm" onclick="FinProducts.openQuickSupplier()" title="Add new supplier" style="white-space:nowrap;padding:9px 12px;">+ New</button>
+          </div>
+          <input type="text" name="supplierCustom" id="fin-supplier-custom" class="form-control" placeholder="Or type a custom supplier name..." style="margin-top:6px;">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Quantity</label><input type="number" name="quantity" class="form-control" placeholder="0" min="0" step="0.01"></div>
+          <div class="form-group"><label class="form-label">Total Cost (BDT ) <span class="required">*</span></label><input type="number" name="cost" class="form-control" placeholder="0.00" min="0" step="0.01" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Purchase Date <span class="required">*</span></label><input type="date" name="date" class="form-control" required></div>
+        <div class="fin-modal-footer"><button type="button" class="btn btn-sec" onclick="FU.closeModal('productModal')">Cancel</button><button type="submit" class="btn btn-pri">Save Product Expense</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Marketing Modal -->
+<div class="fin-modal-overlay" id="marketingModal">
+  <div class="fin-modal">
+    <div class="fin-modal-header"><h3 id="mkt-modalTitle">Add Marketing / Ad Cost</h3><button class="fin-modal-close" onclick="FU.closeModal('marketingModal')">&times;</button></div>
+    <div class="fin-modal-body">
+      <form id="marketingForm" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Platform <span class="required">*</span></label>
+            <select name="platform" class="form-control">
+              <option value="Facebook">Facebook</option><option value="Instagram">Instagram</option>
+              <option value="Google">Google Ads</option><option value="TikTok">TikTok</option>
+              <option value="YouTube">YouTube</option><option value="Twitter">Twitter / X</option>
+              <option value="LinkedIn">LinkedIn</option><option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Amount Spent (BDT ) <span class="required">*</span></label><input type="number" name="amount" class="form-control" placeholder="0.00" min="0" step="0.01" required></div>
+        </div>
+        <div class="form-group"><label class="form-label">Campaign Name</label><input type="text" name="campaignName" class="form-control" placeholder="e.g. Summer Sale 2025"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Date <span class="required">*</span></label><input type="date" name="date" class="form-control" required></div>
+          <div class="form-group"><label class="form-label">Transaction ID</label><input type="text" name="transactionId" class="form-control" placeholder="e.g. TXN-123456"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Notes</label><textarea name="notes" class="form-control" placeholder="Target audience, results, remarks..."></textarea></div>
+        <div class="fin-modal-footer"><button type="button" class="btn btn-sec" onclick="FU.closeModal('marketingModal')">Cancel</button><button type="submit" class="btn btn-pri">Save Campaign</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Finance Toast Container -->
+<div class="toast-container"></div>
+
+<!-- Management Toast -->
+<div id="toast-mgmt" class="hidden"></div>
+
+<!-- ===================================================================
+     JAVASCRIPT
+     =================================================================== -->
+<script src="main.js"></script>
+<script src="vavhAi.js"></script>
+</body>
+</html>

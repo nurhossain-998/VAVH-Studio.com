@@ -1,0 +1,13 @@
+/* pages/auth.css */
+.auth-page { min-height: calc(100vh - var(--navbar-height)); display: flex; align-items: center; justify-content: center; padding: var(--space-8) var(--container-pad); background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%); }
+.auth-card { width: 100%; max-width: 460px; background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--glass-border); border-radius: var(--radius-2xl); padding: var(--space-10); box-shadow: var(--shadow-xl); }
+.auth-logo { font-family: var(--font-display); font-size: var(--text-xl); font-weight: var(--fw-bold); text-align: center; margin-bottom: var(--space-8); color: var(--color-text); }
+.auth-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: var(--fw-medium); text-align: center; margin-bottom: var(--space-2); }
+.auth-subtitle { text-align: center; color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-8); }
+.auth-form { display: flex; flex-direction: column; gap: var(--space-5); }
+.auth-divider { text-align: center; font-size: var(--text-sm); color: var(--color-text-muted); position: relative; margin-block: var(--space-2); }
+.auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: var(--color-border); }
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+.auth-footer { text-align: center; margin-top: var(--space-6); font-size: var(--text-sm); color: var(--color-text-muted); }
+.auth-footer a { color: var(--color-accent); font-weight: var(--fw-medium); }

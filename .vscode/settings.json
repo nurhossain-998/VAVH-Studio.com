@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -NoProfile -Command \"Set-Location -LiteralPath 'N:\\\\Code\\\\Combaine System test 1'; node tests/jwt-secret\\.test\\.js\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

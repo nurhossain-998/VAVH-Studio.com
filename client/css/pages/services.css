@@ -1,0 +1,8 @@
+/* pages/services.css */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-6); }
+.service-card { background: var(--glass-card); backdrop-filter: blur(var(--glass-blur-sm)); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: var(--space-8); transition: transform var(--transition-base), box-shadow var(--transition-base); }
+.service-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.service-card__icon { width: 52px; height: 52px; background: var(--color-surface); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-5); }
+.service-card__icon svg { width: 24px; height: 24px; color: var(--color-sage-dark); }
+.service-card__title { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: var(--fw-semi); margin-bottom: var(--space-3); }
+.service-card__desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: var(--lh-relaxed); }
