@@ -1,0 +1,187 @@
+/* ============================================================
+   variables.css — Global CSS Design Tokens for VAVH.Studio
+   All colors, fonts, spacing, shadows, and z-indices live here
+   ============================================================ */
+
+/* Define root-level CSS custom properties (variables) */
+:root {
+
+  /* ── Color Palette ─────────────────────────────────────────
+     Warm, editorial luxury palette with glassmorphism support */
+
+  /* Primary warm white — main background */
+  --color-bg:            #FAF8F5;
+
+  /* Slightly deeper warm white for section alternates */
+  --color-bg-alt:        #F5F2ED;
+
+  /* Beige card surface */
+  --color-surface:       #F0EBE3;
+
+  /* Soft blush accent */
+  --color-blush:         #E8C4B8;
+
+  /* Muted sage green accent */
+  --color-sage:          #A8B5A0;
+
+  /* Deep sage for hover / active states */
+  --color-sage-dark:     #7A9070;
+
+  /* Warm charcoal — primary text */
+  --color-text:          #2C2825;
+
+  /* Muted warm gray — secondary / body text */
+  --color-text-muted:    #7A726B;
+
+  /* Very light warm gray — borders, dividers */
+  --color-border:        #E5DDD5;
+
+  /* Blush used as CTA / highlight color */
+  --color-accent:        #D4956A;
+
+  /* Lighter tint of accent for hover */
+  --color-accent-light:  #F0C4A0;
+
+  /* Pure white for glass layers */
+  --color-white:         #FFFFFF;
+
+  /* Error / warning red */
+  --color-danger:        #C0392B;
+
+  /* Success green */
+  --color-success:       #27AE60;
+
+  /* ── Glassmorphism Tokens ──────────────────────────────────
+     Controls blur, transparency, and border for glass elements */
+
+  /* Semi-transparent white glass background */
+  --glass-bg:            rgba(255, 255, 255, 0.65);
+
+  /* Slightly more opaque glass for cards */
+  --glass-card:          rgba(255, 255, 255, 0.55);
+
+  /* Glass border — thin translucent white */
+  --glass-border:        rgba(255, 255, 255, 0.4);
+
+  /* Backdrop blur amount for frosted-glass look */
+  --glass-blur:          20px;
+
+  /* Light backdrop blur for subtle elements */
+  --glass-blur-sm:       10px;
+
+  /* ── Typography ────────────────────────────────────────────
+     Font families, sizes, weights, and line heights */
+
+  /* Serif display font for hero headings */
+  --font-display:        'Playfair Display', Georgia, serif;
+
+  /* Sans heading font for section titles */
+  --font-heading:        'Poppins', sans-serif;
+
+  /* Clean body text font */
+  --font-body:           'DM Sans', sans-serif;
+
+  /* Base font size — rem calculations anchor here */
+  --font-size-base:      16px;
+
+  /* Type scale */
+  --text-xs:    0.75rem;   /* 12px */
+  --text-sm:    0.875rem;  /* 14px */
+  --text-base:  1rem;      /* 16px */
+  --text-md:    1.125rem;  /* 18px */
+  --text-lg:    1.25rem;   /* 20px */
+  --text-xl:    1.5rem;    /* 24px */
+  --text-2xl:   2rem;      /* 32px */
+  --text-3xl:   2.5rem;    /* 40px */
+  --text-4xl:   3.5rem;    /* 56px */
+  --text-5xl:   4.5rem;    /* 72px */
+
+  /* Font weights */
+  --fw-light:    300;
+  --fw-normal:   400;
+  --fw-medium:   500;
+  --fw-semi:     600;
+  --fw-bold:     700;
+
+  /* Line heights */
+  --lh-tight:    1.1;
+  --lh-snug:     1.3;
+  --lh-normal:   1.5;
+  --lh-relaxed:  1.7;
+
+  /* ── Spacing Scale ─────────────────────────────────────────
+     Consistent spacing multiplied from 4px base unit */
+
+  --space-1:   0.25rem;  /* 4px  */
+  --space-2:   0.5rem;   /* 8px  */
+  --space-3:   0.75rem;  /* 12px */
+  --space-4:   1rem;     /* 16px */
+  --space-5:   1.25rem;  /* 20px */
+  --space-6:   1.5rem;   /* 24px */
+  --space-8:   2rem;     /* 32px */
+  --space-10:  2.5rem;   /* 40px */
+  --space-12:  3rem;     /* 48px */
+  --space-16:  4rem;     /* 64px */
+  --space-20:  5rem;     /* 80px */
+  --space-24:  6rem;     /* 96px */
+
+  /* ── Border Radius ─────────────────────────────────────────ø */
+
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-2xl:  40px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────────────────────
+     Soft warm shadows matching the beige palette */
+
+  /* Subtle card lift shadow */
+  --shadow-sm:  0 2px 8px rgba(44, 40, 37, 0.06);
+
+  /* Standard card shadow */
+  --shadow-md:  0 4px 20px rgba(44, 40, 37, 0.10);
+
+  /* Elevated modal / dropdown shadow */
+  --shadow-lg:  0 8px 40px rgba(44, 40, 37, 0.14);
+
+  /* Dramatic overlay shadow */
+  --shadow-xl:  0 20px 60px rgba(44, 40, 37, 0.20);
+
+  /* Inset shadow for pressed states */
+  --shadow-inset: inset 0 2px 6px rgba(44, 40, 37, 0.08);
+
+  /* ── Navbar ────────────────────────────────────────────────ø */
+
+  /* Fixed navbar height — used for body padding-top offset */
+  --navbar-height:       72px;
+
+  /* Mobile navbar height */
+  --navbar-height-mobile: 60px;
+
+  /* ── Transitions ────────────────────────────────────────── */
+
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-index Stack ─────────────────────────────────────── */
+
+  --z-base:      1;
+  --z-dropdown:  100;
+  --z-sticky:    200;
+  --z-navbar:    300;
+  --z-modal:     400;
+  --z-toast:     500;
+  --z-overlay:   600;
+
+  /* ── Container ─────────────────────────────────────────── */
+
+  /* Maximum content width for large screens */
+  --container-max:  1400px;
+
+  /* Horizontal padding for container edges */
+  --container-pad:  clamp(1rem, 4vw, 3rem);
+}

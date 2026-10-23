@@ -1,0 +1,29 @@
+appId: com.vavhstudio.admin
+productName: VAVH Studio
+
+directories:
+  buildResources: assets
+  output: dist
+
+files:
+  - electron/**
+  - server/**
+  - client/**
+  - node_modules/**
+  - package.json
+
+win:
+  target:
+    - nsis
+    - portable
+  artifactName: "${productName}-${version}.${ext}"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: VAVH Studio
+
+portable:
+  artifactName: "${productName}-portable-${version}.${ext}"

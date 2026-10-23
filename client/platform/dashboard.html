@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Dashboard - VAVH</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@300;400;500;700&display=swap">
+  <style>
+    :root {
+      --primary: #4caf50;
+      --primary-hover: #43a047;
+      --secondary: #3b82f6;
+      --secondary-hover: #2563eb;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header */
+    .header {
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .header-logo {
+      font-size: 24px;
+      color: var(--primary);
+    }
+    .user-info h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .user-info p {
+      margin: 2px 0 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .btn-outline {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--text-muted);
+    }
+    .btn-danger {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: #ef4444;
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+    }
+    .system-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .system-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .card-icon {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
+    .icon-web { color: var(--primary); }
+    .icon-vavh { color: var(--secondary); }
+    
+    .system-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+    }
+    .system-card p {
+      color: var(--text-muted);
+      margin: 0 0 25px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+    .btn-primary {
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      padding: 12px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: var(--secondary-hover); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .close-btn:hover { color: var(--text); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: white;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .btn-block { width: 100%; display: block; }
+    .msg { font-size: 13px; margin-top: 15px; display: none; }
+    .msg.success { color: var(--primary); }
+    .msg.error { color: #ef4444; }
+
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="header-logo"><i class="fas fa-layer-group"></i></div>
+      <div class="user-info">
+        <h2>Welcome, <span id="userName">Loading...</span></h2>
+        <p>Role: <span id="userRole">...</span></p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" onclick="openPasswordModal()">
+        <i class="fas fa-key"></i> Change Password
+      </button>
+      <button class="btn-outline btn-danger" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="cards-grid">
+      
+      <!-- Website Management Card -->
+      <div class="system-card">
+        <div class="card-icon icon-web">
+          <i class="fas fa-desktop"></i>
+        </div>
+        <h3>Website Management</h3>
+        <p>Access the VAVH Studio Admin Panel. Manage products, customers, orders, and website configurations.</p>
+        <a href="/admin/index.html" class="btn-primary">
+          Open Website Management
+        </a>
+      </div>
+
+      <!-- VAVH Management Card -->
+      <div class="system-card">
+        <div class="card-icon icon-vavh">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>VAVH Management</h3>
+        <p>Access the VAVH Management System. Oversee finances, internal operations, and higher-level analytics.</p>
+        <!-- NOTE: The link below might need to be adjusted once the VAVH Management URL is confirmed -->
+        <a href="/admin/index.html?module=finance" class="btn-secondary">
+          Open VAVH Management
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="pwdModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Change Password</h3>
+        <button class="close-btn" onclick="closePasswordModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="pwdForm">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="currentPwd" required>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="newPwd" required>
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="confirmPwd" required>
+        </div>
+        <button type="submit" class="btn-secondary btn-block" id="pwdBtn">Update Password</button>
+        <div id="pwdMsg" class="msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const csrfRes = await fetch('/api/csrf-token', { credentials: 'include' });
+        const csrfData = await csrfRes.json();
+        if (csrfRes.ok && csrfData.success && csrfData.csrfToken) {
+          sessionStorage.setItem('vavh_csrf_token', csrfData.csrfToken);
+        }
+      } catch (err) {
+        console.warn('CSRF token unavailable on dashboard load:', err);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!event.ctrlKey || !event.shiftKey || event.key.toLowerCase() !== 'a') return;
+      event.preventDefault();
+      fetch('/api/auth/session')
+        .then((response) => response.json())
+        .then((data) => {
+          const role = String(data.user?.role || '').toLowerCase();
+          if (data.success && (role === 'admin' || role === 'super admin')) {
+            window.location.href = '/admin';
+          }
+        });
+    });
+
+    // Verify session
+    fetch('/api/auth/session')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success || !data.user) {
+          window.location.href = '/platform/login.html';
+        } else {
+          document.getElementById('userName').innerText = data.user.name;
+          document.getElementById('userRole').innerText = data.user.role;
+        }
+      })
+      .catch(() => {
+        window.location.href = '/platform/login.html';
+      });
+
+    // Logout function
+    function logout() {
+      fetch('/api/auth/logout', { method: 'POST' })
+        .then(() => {
+          window.location.href = '/platform/login.html';
+        });
+    }
+
+    // Modal handling
+    const modal = document.getElementById('pwdModal');
+    function openPasswordModal() {
+      modal.style.display = 'flex';
+      document.getElementById('pwdMsg').style.display = 'none';
+      document.getElementById('pwdForm').reset();
+    }
+    function closePasswordModal() {
+      modal.style.display = 'none';
+    }
+
+    // Password change
+    document.getElementById('pwdForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const current = document.getElementById('currentPwd').value;
+      const newPwd = document.getElementById('newPwd').value;
+      const confirm = document.getElementById('confirmPwd').value;
+      const msg = document.getElementById('pwdMsg');
+      const btn = document.getElementById('pwdBtn');
+
+      if (newPwd !== confirm) {
+        msg.className = 'msg error';
+        msg.innerText = 'New passwords do not match.';
+        msg.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Updating...';
+
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+        });
+        const data = await res.json();
+        
+        msg.style.display = 'block';
+        if (data.success) {
+          msg.className = 'msg success';
+          msg.innerText = 'Password updated successfully!';
+          setTimeout(closePasswordModal, 2000);
+        } else {
+          msg.className = 'msg error';
+          msg.innerText = data.message || 'Update failed.';
+        }
+      } catch (err) {
+        msg.className = 'msg error';
+        msg.innerText = 'Network error. Please try again.';
+        msg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Update Password';
+      }
+    });
+  </script>
+</body>
+</html>

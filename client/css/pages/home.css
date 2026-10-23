@@ -1,0 +1,692 @@
+/* ============================================================
+   pages/home.css — Homepage-specific styles for VAVH.Studio
+   Hero section, featured collections, promotional banner
+   ============================================================ */
+
+/* ── Hero Section ────────────────────────────────────────── */
+
+/* Full-viewport hero container with soft editorial gradient */
+.hero {
+  min-height: calc(100vh - var(--navbar-height));
+  display: grid;
+  /* Two columns: text left, image right on desktop */
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-12);
+  padding-block: var(--space-16);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative warm background blobs behind hero content */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  /* Blush radial blob */
+  background: radial-gradient(circle, rgba(232, 196, 184, 0.3) 0%, transparent 70%);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Second decorative blob — sage */
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(168, 181, 160, 0.2) 0%, transparent 70%);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero text column — positioned above pseudo elements */
+.hero__text {
+  position: relative;
+  z-index: var(--z-base);
+}
+
+/* Hero eyebrow — small text above main title */
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semi);
+  font-family: var(--font-heading);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-sage-dark);
+  margin-bottom: var(--space-5);
+}
+
+/* Decorative dot before eyebrow text */
+.hero__eyebrow::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--color-sage-dark);
+  border-radius: var(--radius-full);
+}
+
+/* Hero main headline — large serif */
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-3xl), 6vw, var(--text-5xl));
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-6);
+}
+
+/* Italic accent in hero title */
+.hero__title em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+/* Hero subtitle body text */
+.hero__subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  line-height: var(--lh-relaxed);
+  max-width: 460px;
+  margin-bottom: var(--space-8);
+}
+
+/* Hero CTA button row */
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* Hero image column */
+.hero__visual {
+  position: relative;
+  z-index: var(--z-base);
+}
+
+/* Elegant editorial 3D Coverflow Product Carousel */
+.hero__coverflow-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  perspective: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-base);
+}
+
+/* Dynamic ambient glow backdrop */
+.hero__coverflow-ambient {
+  position: absolute;
+  inset: 10%;
+  background: radial-gradient(circle, rgba(212, 149, 106, 0.25) 0%, transparent 70%);
+  filter: blur(40px);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Coverflow track */
+.hero__coverflow {
+  position: relative;
+  width: 100%;
+  height: 85%;
+  transform-style: preserve-3d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-base);
+}
+
+/* Single 3D coverflow slide card */
+.hero__coverflow-slide {
+  position: absolute;
+  width: 70%;
+  height: 90%;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  cursor: pointer;
+}
+
+/* Zoom effect on slide hover */
+.hero__coverflow-slide:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+
+
+/* Image inside coverflow card */
+.hero__coverflow-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--color-surface);
+  display: block;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero__coverflow-slide.active:hover .hero__coverflow-img {
+  transform: scale(1.04);
+}
+
+/* Elegant card details card overlay at bottom (falls back if JS text container is hidden) */
+.hero__coverflow-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  background: linear-gradient(to top, rgba(44, 40, 37, 0.82) 0%, rgba(44, 40, 37, 0.4) 60%, transparent 100%);
+  color: var(--color-white);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.hero__coverflow-card-cat {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-heading);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-blush);
+}
+
+.hero__coverflow-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: var(--fw-medium);
+  margin-top: var(--space-1);
+}
+
+/* 3D Positions in Perspective Space */
+
+/* Active Center Card */
+.hero__coverflow-slide.active {
+  transform: translate3d(0, 0, 120px) rotateY(0deg) scale(1);
+  opacity: 1;
+  z-index: 10;
+  box-shadow: var(--shadow-xl);
+}
+
+.hero__coverflow-slide.active .hero__coverflow-card-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Prev Left Card */
+.hero__coverflow-slide.prev {
+  transform: translate3d(-38%, 0, -80px) rotateY(38deg) scale(0.85);
+  opacity: 0.72;
+  z-index: 5;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Next Right Card */
+.hero__coverflow-slide.next {
+  transform: translate3d(38%, 0, -80px) rotateY(-38deg) scale(0.85);
+  opacity: 0.72;
+  z-index: 5;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Far Hidden Slides */
+.hero__coverflow-slide.hidden-left {
+  transform: translate3d(-75%, 0, -180px) rotateY(55deg) scale(0.7);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero__coverflow-slide.hidden-right {
+  transform: translate3d(75%, 0, -180px) rotateY(-55deg) scale(0.7);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Arrow buttons */
+.hero__coverflow-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur-sm));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  transition: background 0.3s, transform 0.2s, color 0.3s;
+}
+
+.hero__coverflow-btn:hover {
+  background: var(--color-white);
+  color: var(--color-accent);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hero__coverflow-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.hero__coverflow-btn--prev {
+  left: -24px;
+}
+
+.hero__coverflow-btn--next {
+  right: -24px;
+}
+
+.hero__coverflow-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Pagination Dots */
+.hero__coverflow-dots {
+  display: flex;
+  gap: var(--space-2.5);
+  margin-top: var(--space-6);
+  z-index: 20;
+}
+
+.hero__coverflow-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.hero__coverflow-dot:hover {
+  background: var(--color-text-muted);
+}
+
+.hero__coverflow-dot.active {
+  background: var(--color-accent);
+  transform: scale(1.3);
+}
+
+/* Dynamic Showcase Panel for Left Text Column */
+.hero__showcase-panel {
+  background: var(--glass-card);
+  backdrop-filter: blur(var(--glass-blur-sm));
+  -webkit-backdrop-filter: blur(var(--glass-blur-sm));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6) var(--space-8);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: visible;
+  max-width: 520px;
+  animation: fadeInPanel 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero__showcase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2.5);
+}
+
+.hero__showcase-badge {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-heading);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-sage-dark);
+}
+
+.hero__showcase-price {
+  font-size: var(--text-xl);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-heading);
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+}
+
+.hero__showcase-title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-lg), 2.8vw, var(--text-2xl));
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-2.5);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.hero__showcase-desc {
+  font-size: var(--text-base);
+  color: var(--color-text);
+  line-height: var(--lh-relaxed);
+  margin: 0;
+  font-weight: var(--fw-regular);
+  letter-spacing: 0.01em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+@keyframes fadeInPanel {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Floating stats card on hero image */
+.hero__stat-card {
+  position: absolute;
+  bottom: var(--space-8);
+  left: calc(-1 * var(--space-8));
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Stat number in floating card */
+.hero__stat-number {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-text);
+}
+
+/* Stat label in floating card */
+.hero__stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+/* ── Category Showcase Strip ─────────────────────────────── */
+
+/* Horizontal scrollable category cards */
+.category-strip {
+  display: flex;
+  justify-content: center; /* Centers all cards */
+  align-items: center;
+  gap: 24px; /* Space between cards */
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  margin-top: 2rem;
+}
+
+.category-strip {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 28px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.category-card {
+  flex-shrink: 0;
+  width: 160px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform var(--transition-base);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+.category-card__image {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.category-card__name {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  z-index: 2;
+}
+
+.category-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.05)
+  );
+  pointer-events: none;
+}
+
+/* Individual category card */
+.category-card {
+  flex-shrink: 0;
+  width: 160px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  /* Smooth hover */
+  transition: transform var(--transition-base);
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Category image */
+.category-card__img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.category-card:hover .category-card__img {
+  transform: scale(1.06);
+}
+
+/* Category name overlay at bottom */
+.category-card__name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(44, 40, 37, 0.7), transparent);
+  color: var(--color-white);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-medium);
+  font-family: var(--font-heading);
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  text-align: center;
+}
+
+/* ── Promotional Banner ──────────────────────────────────── */
+
+/* Full-width promo strip with warm gradient */
+.promo-banner {
+  background: linear-gradient(135deg, var(--color-text) 0%, #3D3530 100%);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-12) var(--space-16);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-8);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Decorative circle behind promo content */
+.promo-banner::before {
+  content: '';
+  position: absolute;
+  right: -80px;
+  top: -80px;
+  width: 320px;
+  height: 320px;
+  background: rgba(212, 149, 106, 0.15);
+  border-radius: var(--radius-full);
+}
+
+/* Promo text block */
+.promo-banner__text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Promo eyebrow */
+.promo-banner__eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semi);
+  font-family: var(--font-heading);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-blush);
+  margin-bottom: var(--space-3);
+}
+
+/* Promo headline */
+.promo-banner__title {
+  font-family: var(--font-display);
+  font-size: clamp(var(--text-xl), 3vw, var(--text-3xl));
+  font-weight: var(--fw-medium);
+  color: var(--color-white);
+  margin-bottom: var(--space-3);
+}
+
+/* Promo subtitle */
+.promo-banner__sub {
+  font-size: var(--text-base);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Promo action button area */
+.promo-banner__actions {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+/* ── Hero Mobile ─────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Stack hero to single column on mobile */
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: var(--space-12);
+  }
+
+  /* Center text on mobile */
+  .hero__text {
+    text-align: center;
+  }
+
+  .hero__actions {
+    justify-content: center;
+  }
+
+  .hero__subtitle {
+    margin-inline: auto;
+  }
+
+  /* Coverflow mobile responsive adjustments */
+  .hero__coverflow-container {
+    aspect-ratio: 4 / 5;
+    max-width: 440px;
+    margin: var(--space-6) auto 0;
+    perspective: 800px; /* Reduced perspective on smaller screens */
+  }
+
+  .hero__coverflow-slide.prev {
+    transform: translate3d(-30%, 0, -80px) rotateY(32deg) scale(0.82);
+    opacity: 0.5;
+  }
+
+  .hero__coverflow-slide.next {
+    transform: translate3d(30%, 0, -80px) rotateY(-32deg) scale(0.82);
+    opacity: 0.5;
+  }
+
+  .hero__coverflow-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .hero__coverflow-btn--prev {
+    left: 2px;
+  }
+
+  .hero__coverflow-btn--next {
+    right: 2px;
+  }
+
+  .hero__showcase-panel {
+    margin-inline: auto;
+    text-align: left; /* Keep left alignment for dynamic info cards */
+  }
+
+  /* Hide floating stat card on mobile */
+  .hero__stat-card {
+    display: none;
+  }
+
+  /* Promo banner stacked */
+  .promo-banner {
+    grid-template-columns: 1fr;
+    padding: var(--space-8);
+    text-align: center;
+  }
+}

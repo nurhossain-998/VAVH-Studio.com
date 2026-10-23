@@ -1,0 +1,313 @@
+/* ============================================================
+   responsive.css — Breakpoint Media Queries for VAVH.Studio
+   Mobile-first progressive enhancement approach
+   ============================================================ */
+
+/* ── Breakpoints Reference ───────────────────────────────── */
+/*
+   xs:  < 480px   (small phones)
+   sm:  < 640px   (phones)
+   md:  < 768px   (large phones / small tablets)
+   lg:  < 1024px  (tablets)
+   xl:  < 1280px  (small desktops)
+   2xl: ≥ 1280px  (full desktops)
+*/
+
+/* ── Mobile Body Padding ─────────────────────────────────── */
+
+/* Adjust body top padding for shorter mobile navbar */
+@media (max-width: 640px) {
+  body {
+    padding-top: var(--navbar-height-mobile);
+  }
+
+  /* Shorten navbar height on mobile */
+  .navbar {
+    height: var(--navbar-height-mobile);
+  }
+}
+
+/* ── Navbar Mobile ───────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Show hamburger button on mobile */
+  .nav-hamburger {
+    display: flex;
+  }
+
+  /* Reduce navbar grid to 3 columns, tighter */
+  .navbar-inner {
+    padding-inline: var(--space-4);
+    gap: var(--space-2);
+  }
+
+  /* Smaller logo on mobile */
+  .navbar-logo {
+    font-size: var(--text-lg);
+  }
+
+  /* Hide login text label on mobile */
+  .nav-login-btn .btn-text {
+    display: none;
+  }
+
+  /* Compress login button to icon-size on mobile */
+  .nav-login-btn {
+    padding-inline: var(--space-2);
+    height: 32px;
+    width: 32px;
+    border-radius: var(--radius-full);
+  }
+
+  /* Smaller nav icon buttons */
+  .nav-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-icon-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ── Products Grid ───────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  /* Very small phones: 2 columns, tight gap */
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  /* Smaller card padding on tiny screens */
+  .product-card__info {
+    padding: var(--space-3);
+  }
+
+  /* Smaller product title on tiny cards */
+  .product-card__title {
+    font-size: var(--text-sm);
+  }
+
+  /* Smaller price on tiny cards */
+  .product-card__price {
+    font-size: var(--text-base);
+  }
+}
+
+/* ── Modal ───────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Full-screen modal on mobile */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  /* Sheet-style modal slides up from bottom */
+  .modal {
+    max-height: 92vh;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    max-width: 100%;
+  }
+
+  /* Product modal single column on mobile */
+  .product-modal-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+/* ── Dashboard ───────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  /* Dashboard full width on tablet */
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sidebar becomes horizontal tabs on tablet */
+  .sidebar {
+    position: static;
+    border-radius: var(--radius-xl);
+  }
+
+  /* Stat cards: 2 columns on tablet */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  /* Dashboard padding reduced */
+  .dashboard-layout {
+    padding-block: var(--space-6);
+  }
+
+  /* Order row simplified on mobile */
+  .order-row {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2);
+  }
+
+  /* Hide less important columns in order table */
+  .order-row .order-col-hide-mobile {
+    display: none;
+  }
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Footer grid: 2 columns on tablet */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Footer grid: single column on mobile */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  /* Footer bottom: stack on mobile */
+  .footer-bottom {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+  }
+}
+
+/* ── Hero Section ────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Shorter hero on mobile */
+  .page-hero {
+    min-height: 45vh;
+  }
+
+  /* Smaller hero text on mobile */
+  .hero-title {
+    font-size: clamp(var(--text-2xl), 8vw, var(--text-3xl));
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-base);
+  }
+}
+
+/* ── Cart Panel ──────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  /* Full-width cart panel on small phones */
+  .cart-panel {
+    width: 100vw;
+  }
+
+  /* Adjust cart item thumbnail */
+  .cart-item__img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* ── Admin Panel ─────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Stack admin layout on mobile */
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  /* Admin sidebar becomes top tab bar */
+  .admin-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+  }
+
+  /* Admin content padding reduced */
+  .admin-content {
+    padding: var(--space-4);
+  }
+}
+
+/* ── Section Headers ─────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Tighten section header margins on mobile */
+  .section-header {
+    margin-bottom: var(--space-8);
+  }
+
+  /* Reduce subtitle width constraint */
+  .section-subtitle {
+    font-size: var(--text-base);
+  }
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  /* Full-width toast on mobile */
+  .toast-container {
+    bottom: var(--space-4);
+    right: var(--space-3);
+    left: var(--space-3);
+  }
+
+  .toast {
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
+  }
+}
+
+/* ── Form Grids ──────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Single column forms on mobile */
+  .form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Larger touch targets for form inputs */
+  .form-input,
+  .form-select {
+    height: 48px;
+  }
+}
+
+/* ── Services Grid ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Services: 2 columns on tablet */
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Services: single column on mobile */
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Filter Pills ────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  /* Slightly smaller filter pills on mobile */
+  .filter-pill {
+    height: 32px;
+    padding-inline: var(--space-4);
+    font-size: var(--text-xs);
+  }
+}

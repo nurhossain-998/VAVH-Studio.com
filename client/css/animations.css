@@ -1,0 +1,311 @@
+/* ============================================================
+   animations.css — Keyframes & Animation Utilities for VAVH.Studio
+   Minimal, purposeful animations for a calm luxury feel
+   ============================================================ */
+
+/* ── Keyframe Definitions ────────────────────────────────── */
+
+/* Fade in from below — used for scroll reveals */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    /* Start 24px below final position */
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in only — opacity transition */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Fade in from the right — for cart drawer */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in — for modal and popups */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Continuous rotation — for loading spinner */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Toast slide in from right */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Gentle pulse — for CTA highlights */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* Shimmer — for skeleton loading states */
+@keyframes shimmer {
+  from {
+    background-position: -400px 0;
+  }
+  to {
+    background-position: 400px 0;
+  }
+}
+
+/* Float — subtle upward bob for hero elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+/* ── Utility Animation Classes ───────────────────────────── */
+
+/* Apply fade-in-up on scroll reveal elements */
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease both;
+}
+
+/* Fade in only */
+.animate-fade {
+  opacity: 0;
+  animation: fadeIn 0.5s ease both;
+}
+
+/* Scale in animation */
+.animate-scale {
+  animation: scaleIn 0.3s ease both;
+}
+
+/* ── Stagger Delay Helpers ───────────────────────────────── */
+/* Used to create cascading entrance effects for grid items */
+
+/* Delay variants for staggered animations */
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.10s; }
+.delay-3 { animation-delay: 0.15s; }
+.delay-4 { animation-delay: 0.20s; }
+.delay-5 { animation-delay: 0.25s; }
+.delay-6 { animation-delay: 0.30s; }
+.delay-7 { animation-delay: 0.35s; }
+.delay-8 { animation-delay: 0.40s; }
+
+/* ── Scroll Reveal — Base State ──────────────────────────── */
+
+/* Elements waiting to be revealed — invisible and shifted down */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  /* Smooth transition when .revealed class is added by JS */
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+
+/* Revealed state — JS adds this class when element enters viewport */
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reveal from left */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+
+.reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Reveal from right */
+.reveal-right {
+  opacity: 0;
+  transform: translateX(28px);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+
+.reveal-right.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Skeleton Loading ────────────────────────────────────── */
+
+/* Skeleton placeholder shimmer for loading states */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-border)  50%,
+    var(--color-surface) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Skeleton card — represents a product card while loading */
+.skeleton-card {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+/* Skeleton image area */
+.skeleton-card__img {
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-border)  50%,
+    var(--color-surface) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* Skeleton text line */
+.skeleton-card__line {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  margin: var(--space-3) var(--space-4);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-border)  50%,
+    var(--color-surface) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* Shorter skeleton line variant */
+.skeleton-card__line.short {
+  width: 60%;
+}
+
+/* ── Hero Parallax ───────────────────────────────────────── */
+
+/* Hero section — subtle parallax container */
+.hero-parallax {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Parallax background layer — moved by JS */
+.hero-parallax__bg {
+  position: absolute;
+  inset: -10%;
+  /* Larger than container to allow movement */
+  width: 120%;
+  height: 120%;
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
+/* ── Hover Effects ───────────────────────────────────────── */
+
+/* Gentle underline grow on hover — for text links */
+.hover-underline {
+  position: relative;
+}
+
+/* Underline pseudo element */
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  /* Smooth width grow */
+  transition: width var(--transition-base);
+}
+
+.hover-underline:hover::after {
+  width: 100%;
+}
+
+/* Lift on hover — applied to interactive cards/panels */
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Floating Elements ───────────────────────────────────── */
+
+/* Gentle floating animation for decorative elements */
+.float-anim {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Page Transition ─────────────────────────────────────── */
+
+/* Fade in when page loads */
+.page-enter {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* ── Reduced Motion Override ─────────────────────────────── */
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  /* Remove all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Reveal immediately without animation */
+  .reveal,
+  .reveal-left,
+  .reveal-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

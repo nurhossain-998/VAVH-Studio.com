@@ -1,0 +1,1 @@
+/* Card hover effects are defined in heroParallax.js combined file */
