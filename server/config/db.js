@@ -1,21 +1,17 @@
-const mysql = require('mysql2/promise');
+
+const { Pool } = require('pg');
 require('dotenv').config();
 
-if (process.env.NODE_ENV === 'production') {
-    for (const variable of ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME']) {
-        if (!process.env[variable]) throw new Error(`${variable} is required in production.`);
-    }
+if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is required in production.');
 }
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'app_user',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'vavh_main',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL
+        ? { rejectUnauthorized: false }
+        : undefined,
+    max: 10
 });
 
 module.exports = pool;
