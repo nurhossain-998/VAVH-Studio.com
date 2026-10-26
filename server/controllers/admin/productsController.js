@@ -1,22 +1,26 @@
-// ============================================================
-//  controllers/productsController.js
-//  CRUD for the Products (management inventory) table
-// ============================================================
-
-const db     = require('../../config/db');
+const db = require('../../config/db');
 const { v4: uuidv4 } = require('uuid');
 
-async function ensureProductColumns(conn = db) {
+async function ensureProductColumns() {
   const requiredColumns = [
-    { name: 'image_url', definition: 'VARCHAR(255) NULL AFTER price' },
-    { name: 'is_featured', definition: 'TINYINT(1) NOT NULL DEFAULT 0 AFTER image_url' },
-    { name: 'is_active', definition: 'TINYINT(1) NOT NULL DEFAULT 1 AFTER is_featured' },
+    { name: 'image_url', definition: 'VARCHAR(255)' },
+    { name: 'is_featured', definition: 'BOOLEAN NOT NULL DEFAULT FALSE' },
+    { name: 'is_active', definition: 'BOOLEAN NOT NULL DEFAULT TRUE' },
   ];
 
   for (const column of requiredColumns) {
-    const [rows] = await conn.query('SHOW COLUMNS FROM products LIKE ?', [column.name]);
-    if (rows.length === 0) {
-      await conn.query(`ALTER TABLE products ADD COLUMN ${column.name} ${column.definition}`);
+    const result = await db.query(
+      `SELECT 1 FROM information_schema.columns
+       WHERE table_schema = 'public'
+       AND table_name = 'products'
+       AND column_name = $1`,
+      [column.name]
+    );
+
+    if (result.rows.length === 0) {
+      await db.query(
+        `ALTER TABLE products ADD COLUMN ${column.name} ${column.definition}`
+      );
     }
   }
 }
@@ -47,24 +51,16 @@ function normalizeAdminProductPayload(payload = {}) {
     return { ...validation, normalized: null };
   }
 
-  const name = validation.normalized.name;
-  const price = validation.normalized.price;
-  const description = (payload.description ?? payload.notes ?? '').toString().trim();
-  const stock = Number.isFinite(Number(payload.stock)) ? Number(payload.stock) : 0;
-  const image_url = payload.image_url || '';
-  const is_featured = payload.is_featured ? 1 : 0;
-  const category = typeof payload.category === 'string' ? payload.category.trim() : '';
-
   return {
     ...validation,
     normalized: {
-      name,
-      price,
-      description,
-      stock,
-      image_url,
-      is_featured,
-      category,
+      name: validation.normalized.name,
+      price: validation.normalized.price,
+      description: (payload.description ?? payload.notes ?? '').toString().trim(),
+      stock: Number.isFinite(Number(payload.stock)) ? Number(payload.stock) : 0,
+      image_url: payload.image_url || '',
+      is_featured: Boolean(payload.is_featured),
+      category: typeof payload.category === 'string' ? payload.category.trim() : '',
       category_id: null,
       created_at: new Date(),
     },
@@ -73,8 +69,8 @@ function normalizeAdminProductPayload(payload = {}) {
 
 async function getAll(req, res) {
   try {
-    const [rows] = await db.query('SELECT * FROM products ORDER BY created_at DESC');
-    res.json({ success: true, data: rows });
+    const result = await db.query('SELECT * FROM products ORDER BY created_at DESC');
+    res.json({ success: true, data: result.rows });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to fetch products.' });
@@ -82,78 +78,117 @@ async function getAll(req, res) {
 }
 
 async function create(req, res) {
-  const normalized = normalizeAdminProductPayload(req.body);
+  const validation = normalizeAdminProductPayload(req.body);
 
-  if (!normalized.isValid) {
-    return res.status(400).json({ success: false, message: normalized.error });
+  if (!validation.isValid) {
+    return res.status(400).json({ success: false, message: validation.error });
   }
 
   try {
     await ensureProductColumns();
-    let categoryId = null;
-    if (normalized.normalized.category) {
-      const [cats] = await db.query('SELECT id FROM categories WHERE name = ? LIMIT 1', [normalized.normalized.category]);
-      categoryId = cats[0]?.id ?? null;
-    }
-    // Check if this product should be recorded as already purchased
-    const purchasedFlag = req.body.product_already_purchased || req.body.purchased || req.body.is_purchased || false;
-    // Determine initial stock: prefer explicit purchase quantity when marked purchased
-    const purchaseQtyRaw = req.body.purchase_quantity || req.body.purchased_quantity || req.body.purchaseQty || null;
-    const purchaseQty = Number.isFinite(Number(purchaseQtyRaw)) ? Number(purchaseQtyRaw) : normalized.normalized.stock;
 
-    const [result] = await db.query(
-      `INSERT INTO products (name, description, price, stock, category_id, image_url, is_featured, is_active, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
+    let categoryId = null;
+    if (validation.normalized.category) {
+      const cats = await db.query(
+        'SELECT id FROM categories WHERE name = $1 LIMIT 1',
+        [validation.normalized.category]
+      );
+      categoryId = cats.rows[0]?.id ?? null;
+    }
+
+    const purchasedFlag = Boolean(
+      req.body.product_already_purchased ||
+      req.body.purchased ||
+      req.body.is_purchased
+    );
+
+    const purchaseQtyRaw =
+      req.body.purchase_quantity ||
+      req.body.purchased_quantity ||
+      req.body.purchaseQty ||
+      null;
+
+    const purchaseQty = Number.isFinite(Number(purchaseQtyRaw))
+      ? Number(purchaseQtyRaw)
+      : validation.normalized.stock;
+
+    const result = await db.query(
+      `INSERT INTO products
+       (name, description, price, stock, category_id, image_url,
+        is_featured, is_active, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE, NOW())
+       RETURNING id`,
       [
-        normalized.normalized.name,
-        normalized.normalized.description,
-        normalized.normalized.price,
+        validation.normalized.name,
+        validation.normalized.description,
+        validation.normalized.price,
         purchaseQty,
         categoryId,
-        normalized.normalized.image_url,
-        normalized.normalized.is_featured,
+        validation.normalized.image_url,
+        validation.normalized.is_featured,
       ]
     );
 
-    const newProductId = result.insertId;
+    const newProductId = result.rows[0].id;
 
-    // If the product was already purchased, create finance & inventory records
     if (purchasedFlag) {
       try {
-        // Compute total cost: accept either total or per-unit cost
-        const purchaseCostRaw = req.body.purchase_total || req.body.purchase_cost || req.body.purchasePrice || null;
+        const purchaseCostRaw =
+          req.body.purchase_total ||
+          req.body.purchase_cost ||
+          req.body.purchasePrice ||
+          null;
+
         let totalCost = 0;
-        if (purchaseCostRaw !== null && purchaseCostRaw !== undefined && purchaseCostRaw !== '') {
-          const pc = Number(purchaseCostRaw);
-          if (!Number.isNaN(pc)) {
-            // If provided as per-unit and we have a quantity, multiply
-            totalCost = (req.body.purchase_total ? pc : (pc * (purchaseQty || 0)));
+        if (purchaseCostRaw !== null && purchaseCostRaw !== '') {
+          const cost = Number(purchaseCostRaw);
+          if (!Number.isNaN(cost)) {
+            totalCost = req.body.purchase_total
+              ? cost
+              : cost * (purchaseQty || 0);
           }
         }
 
         const supplier = req.body.purchase_supplier || req.body.supplier || '';
         const purchaseDate = req.body.purchase_date || req.body.date || null;
 
-        // Record product cost (affects finance totals and balance)
-        if (totalCost && totalCost > 0) {
-          const id = uuidv4();
+        if (totalCost > 0) {
           await db.query(
-            'INSERT INTO product_costs (id, product_name, item_name, supplier, quantity, cost, date, notes) VALUES (?,?,?,?,?,?,?,?)',
-            [id, normalized.normalized.name, normalized.normalized.name, supplier, purchaseQty || 0, totalCost, purchaseDate || null, 'Initial purchase on product creation']
+            `INSERT INTO product_costs
+             (id, product_name, item_name, supplier, quantity, cost, date, notes)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [
+              uuidv4(),
+              validation.normalized.name,
+              validation.normalized.name,
+              supplier,
+              purchaseQty || 0,
+              totalCost,
+              purchaseDate,
+              'Initial purchase on product creation',
+            ]
           );
         }
 
-        // Create an inventory adjustment record to reflect the purchased quantity
-        if (purchaseQty && Number(purchaseQty) > 0) {
-          const adjId = uuidv4();
+        if (purchaseQty > 0) {
           await db.query(
-            'INSERT INTO inventory_adjustments (id, product_id, product_name, adj_type, qty, reference, note, date) VALUES (?,?,?,?,?,?,?,?)',
-            [adjId, newProductId, normalized.normalized.name, 'purchase', purchaseQty, '', 'Initial purchase on product creation', purchaseDate || null]
+            `INSERT INTO inventory_adjustments
+             (id, product_id, product_name, adj_type, qty, reference, note, date)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [
+              uuidv4(),
+              newProductId,
+              validation.normalized.name,
+              'purchase',
+              purchaseQty,
+              '',
+              'Initial purchase on product creation',
+              purchaseDate,
+            ]
           );
         }
-      } catch (finErr) {
-        console.error('Failed to record purchase/finance data for new product:', finErr);
-        // Do not fail product creation if finance recording fails; return created product id
+      } catch (financeError) {
+        console.error('Failed to record purchase/finance data:', financeError);
       }
     }
 
@@ -166,32 +201,66 @@ async function create(req, res) {
 
 async function update(req, res) {
   const { id } = req.params;
-  const { name, sku, category, price, stock, supplier, manufacturer_price, notes, description, image_url, is_featured } = req.body;
+  const {
+    name, category, price, stock, notes, description,
+    image_url, is_featured
+  } = req.body;
 
   try {
     await ensureProductColumns();
-    let categoryId = undefined;
-    if (category !== undefined) {
-      const [cats] = await db.query('SELECT id FROM categories WHERE name = ? LIMIT 1', [category]);
-      categoryId = cats[0]?.id ?? null;
-    }
 
     const fields = [];
     const params = [];
 
-    if (name !== undefined) { fields.push('name = ?'); params.push(name.trim()); }
-    if (price !== undefined) { fields.push('price = ?'); params.push(Number(price)); }
-    if (stock !== undefined) { fields.push('stock = ?'); params.push(Number(stock)); }
-    if (categoryId !== undefined) { fields.push('category_id = ?'); params.push(categoryId); }
-    if (description !== undefined) { fields.push('description = ?'); params.push(description); }
-    if (notes !== undefined && description === undefined) { fields.push('description = ?'); params.push(notes); }
-    if (image_url !== undefined) { fields.push('image_url = ?'); params.push(image_url); }
-    if (is_featured !== undefined) { fields.push('is_featured = ?'); params.push(is_featured ? 1 : 0); }
+    if (name !== undefined) {
+      fields.push(`name = $${params.length + 1}`);
+      params.push(name.trim());
+    }
 
-    if (!fields.length) return res.status(400).json({ success: false, message: 'No fields to update.' });
+    if (price !== undefined) {
+      fields.push(`price = $${params.length + 1}`);
+      params.push(Number(price));
+    }
+
+    if (stock !== undefined) {
+      fields.push(`stock = $${params.length + 1}`);
+      params.push(Number(stock));
+    }
+
+    if (category !== undefined) {
+      const cats = await db.query(
+        'SELECT id FROM categories WHERE name = $1 LIMIT 1',
+        [category]
+      );
+      fields.push(`category_id = $${params.length + 1}`);
+      params.push(cats.rows[0]?.id ?? null);
+    }
+
+    if (description !== undefined || notes !== undefined) {
+      fields.push(`description = $${params.length + 1}`);
+      params.push(description !== undefined ? description : notes);
+    }
+
+    if (image_url !== undefined) {
+      fields.push(`image_url = $${params.length + 1}`);
+      params.push(image_url);
+    }
+
+    if (is_featured !== undefined) {
+      fields.push(`is_featured = $${params.length + 1}`);
+      params.push(Boolean(is_featured));
+    }
+
+    if (!fields.length) {
+      return res.status(400).json({ success: false, message: 'No fields to update.' });
+    }
 
     params.push(id);
-    await db.query(`UPDATE products SET ${fields.join(', ')} WHERE id = ?`, params);
+    await db.query(
+      `UPDATE products SET ${fields.join(', ')} WHERE id = $${params.length}`,
+      params
+    );
+
     res.json({ success: true, message: 'Product updated.' });
   } catch (err) {
     console.error(err);
@@ -200,9 +269,8 @@ async function update(req, res) {
 }
 
 async function remove(req, res) {
-  const { id } = req.params;
   try {
-    await db.query('DELETE FROM products WHERE id=?', [id]);
+    await db.query('DELETE FROM products WHERE id = $1', [req.params.id]);
     res.json({ success: true, message: 'Product deleted.' });
   } catch (err) {
     console.error(err);
@@ -210,23 +278,39 @@ async function remove(req, res) {
   }
 }
 
-// ── PATCH /api/products/:id/stock  — decrement stock when order is placed ──
 async function adjustStock(req, res) {
-  const { id }    = req.params;
-  const { delta } = req.body;  // positive = add, negative = subtract
+  const { id } = req.params;
+  const delta = Number(req.body.delta);
+
+  if (!Number.isFinite(delta)) {
+    return res.status(400).json({ success: false, message: 'Invalid stock adjustment.' });
+  }
 
   try {
-    // Use MAX to prevent negative stock
     await db.query(
-      'UPDATE products SET stock = GREATEST(0, stock + ?) WHERE id=?',
+      'UPDATE products SET stock = GREATEST(0, stock + $1) WHERE id = $2',
       [delta, id]
     );
-    const [[updated]] = await db.query('SELECT stock FROM products WHERE id=?', [id]);
-    res.json({ success: true, newStock: updated?.stock });
+
+    const result = await db.query(
+      'SELECT stock FROM products WHERE id = $1',
+      [id]
+    );
+
+    res.json({ success: true, newStock: result.rows[0]?.stock });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to adjust stock.' });
   }
 }
 
-module.exports = { getAll, create, update, remove, adjustStock, ensureProductColumns, validateProductPayload, normalizeAdminProductPayload };
+module.exports = {
+  getAll,
+  create,
+  update,
+  remove,
+  adjustStock,
+  ensureProductColumns,
+  validateProductPayload,
+  normalizeAdminProductPayload,
+};
