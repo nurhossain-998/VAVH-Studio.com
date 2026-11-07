@@ -28,15 +28,6 @@ async function create(req, res) {
   }
 
   try {
-    // ── Generate next sequential order ID ──────────────────
-    const [existing] = await db.query("SELECT id FROM orders ORDER BY created_at DESC");
-    let maxNum = 0;
-    existing.forEach(o => {
-      const n = parseInt((o.id || '').replace('ID', '')) || 0;
-      if (n > maxNum) maxNum = n;
-    });
-    const orderId = 'ID' + String(maxNum + 1).padStart(4, '0');
-
     // ── Check stock ────────────────────────────────────────
     const [[product]] = await db.query('SELECT stock FROM products WHERE id=?', [productId]);
     if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
@@ -48,14 +39,19 @@ async function create(req, res) {
     await db.query('UPDATE products SET stock = stock - ? WHERE id=?', [qty, productId]);
 
     // ── Insert order ───────────────────────────────────────
-    await db.query(
+    // orders.id is an auto-generated integer. The old 'ID0001' style label is
+    // kept in order_reference so it can still be shown in the UI and emails.
+    const [orderResult] = await db.query(
       `INSERT INTO orders
-         (id, customer_name, product_id, product_name, qty, total, status,
+         (customer_name, product_id, product_name, qty, total, status,
           finance_name_due, due_total, due_paid, due_remaining, notes)
-       VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?, ?)`,
-      [orderId, customerName, productId, productName, qty, total || 0,
+       VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?, ?, ?, ?)`,
+      [customerName, productId, productName, qty, total || 0,
        financeNameDue || '', dueTotal || 0, duePaid || 0, dueRemaining || 0, notes || '']
     );
+    const newOrderId = orderResult.insertId;
+    const orderId = 'ID' + String(newOrderId).padStart(4, '0');
+    await db.query('UPDATE orders SET order_reference = ? WHERE id = ?', [orderId, newOrderId]);
 
     setImmediate(() => {
       sendNewOrderAdminNotification({
@@ -66,7 +62,7 @@ async function create(req, res) {
       }).catch((err) => console.error('[Email] Admin order notification failed:', err.message));
     });
 
-    res.json({ success: true, message: `Order ${orderId} created.`, id: orderId });
+    res.json({ success: true, message: `Order ${orderId} created.`, id: newOrderId, order_reference: orderId });
 
   } catch (err) {
     console.error(err);
