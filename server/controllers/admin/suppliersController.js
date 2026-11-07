@@ -9,13 +9,11 @@ require('dotenv').config();
 
 async function getTableColumns(table) {
   try {
-    const schema = process.env.DB_NAME || process.env.MYSQL_DATABASE || null;
-    if (!schema) return [];
     const [rows] = await db.query(
-      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
-      [schema, table]
+      `SELECT column_name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ?`,
+      [table]
     );
-    return rows.map(r => r.COLUMN_NAME);
+    return rows.map(r => r.column_name);
   } catch (err) {
     return [];
   }
