@@ -106,7 +106,6 @@ const totalAmount = Number(total);
     );
 
     // Insert order and retrieve its generated ID.
-    // Insert order and retrieve its generated ID.
 const orderResult = await client.query(
   `INSERT INTO orders
    (
