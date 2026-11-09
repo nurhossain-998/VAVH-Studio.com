@@ -1,272 +1,495 @@
-/* ============================================================
-   server/controllers/productController.js — Product CRUD
-   ============================================================ */
+// ============================================================
+// Storefront Product, Category, Service and Order Controller
+// PostgreSQL-compatible
+// ============================================================
+
 const db = require('../../config/db');
-const { validateCheckoutCustomer, generateOrderReference } = require('./orderWorkflow');
-const { sendOrderNotifications, sendOrderStatusEmail, sendPaymentNotification } = require('../../services/notificationService');
-const { ensureEmailTables } = require('../../services/emailMigration');
-const { recordEvent } = require('../../services/vavhAiService');
 
-async function ensureCustomerColumns(conn) {
-  const requiredColumns = [
-    { name: 'first_name', definition: 'VARCHAR(100) NULL AFTER user_id' },
-    { name: 'last_name', definition: 'VARCHAR(100) NULL AFTER first_name' },
-    { name: 'email', definition: 'VARCHAR(150) NULL AFTER last_name' },
-    { name: 'address', definition: 'TEXT NULL AFTER email' },
-    { name: 'name', definition: 'VARCHAR(200) NULL AFTER user_id' },
-    { name: 'contact', definition: 'VARCHAR(100) NULL AFTER name' },
-    { name: 'created_at', definition: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER address' },
-  ];
+const {
+  validateCheckoutCustomer,
+  generateOrderReference
+} = require('./orderWorkflow');
 
-  for (const column of requiredColumns) {
-    const [rows] = await conn.query(`SHOW COLUMNS FROM customers LIKE ?`, [column.name]);
-    if (rows.length === 0) {
-      await conn.query(`ALTER TABLE customers ADD COLUMN ${column.name} ${column.definition}`);
-    }
-  }
-}
+const {
+  sendOrderNotifications
+} = require('../../services/notificationService');
 
-async function ensureOrderColumns(conn) {
-  const requiredColumns = [
-    { name: 'order_reference', definition: 'VARCHAR(50) NULL UNIQUE AFTER status' },
-    { name: 'customer_name', definition: 'VARCHAR(200) NULL AFTER customer_id' },
-    { name: 'product_id', definition: 'INT NULL AFTER customer_name' },
-    { name: 'product_name', definition: 'VARCHAR(200) NULL AFTER product_id' },
-    { name: 'qty', definition: 'INT NULL AFTER product_name' },
-    { name: 'total', definition: 'DECIMAL(10,2) NULL AFTER qty' },
-    { name: 'finance_name_due', definition: 'VARCHAR(100) NULL AFTER total' },
-    { name: 'due_total', definition: 'DECIMAL(10,2) NULL AFTER finance_name_due' },
-    { name: 'due_paid', definition: 'DECIMAL(10,2) NULL AFTER due_total' },
-    { name: 'due_remaining', definition: 'DECIMAL(10,2) NULL AFTER due_paid' },
-    { name: 'notes', definition: 'TEXT NULL AFTER due_remaining' },
-  ];
+const {
+  ensureEmailTables
+} = require('../../services/emailMigration');
 
-  for (const column of requiredColumns) {
-    const [rows] = await conn.query(`SHOW COLUMNS FROM orders LIKE ?`, [column.name]);
-    if (rows.length === 0) {
-      await conn.query(`ALTER TABLE orders ADD COLUMN ${column.name} ${column.definition}`);
-    }
-  }
-}
+const {
+  recordEvent
+} = require('../../services/vavhAiService');
+
+// ============================================================
+// CUSTOMER HELPERS
+// ============================================================
 
 function splitCustomerName(fullName = '') {
   const trimmed = (fullName || '').trim();
-  if (!trimmed) return { first_name: '', last_name: '' };
+
+  if (!trimmed) {
+    return {
+      first_name: '',
+      last_name: ''
+    };
+  }
+
   const parts = trimmed.split(/\s+/);
+
   return {
     first_name: parts.shift() || '',
-    last_name: parts.join(' ') || '',
+    last_name: parts.join(' ') || ''
   };
 }
 
-async function findOrCreateCustomer(conn, customerData, userId) {
+async function findOrCreateCustomer(client, customerData, userId) {
   const normalized = validateCheckoutCustomer(customerData).normalized;
+
   const { first_name, last_name } = splitCustomerName(normalized.name);
-  const publicName = normalized.name || `${first_name} ${last_name}`.trim() || normalized.email || normalized.phone || null;
+
+  const publicName =
+    normalized.name ||
+    `${first_name} ${last_name}`.trim() ||
+    normalized.email ||
+    normalized.phone ||
+    null;
+
   const contact = normalized.phone || normalized.email || null;
 
+  // Find customer by logged-in user.
   if (userId) {
-    const [existingUserCustomers] = await conn.query('SELECT id FROM customers WHERE user_id = ? LIMIT 1', [userId]);
-    if (existingUserCustomers.length > 0) {
-      const customerId = existingUserCustomers[0].id;
-      await conn.query(
-        'UPDATE customers SET user_id = COALESCE(?, user_id), name = ?, contact = ?, first_name = ?, last_name = ?, email = ?, phone = ?, address = ? WHERE id = ?',
-        [userId || null, publicName, contact, first_name, last_name, normalized.email || null, normalized.phone || null, normalized.address || null, customerId]
+    const existingUserResult = await client.query(
+      `SELECT id
+       FROM customers
+       WHERE user_id = $1
+       LIMIT 1`,
+      [userId]
+    );
+
+    if (existingUserResult.rows.length > 0) {
+      const customerId = existingUserResult.rows[0].id;
+
+      await client.query(
+        `UPDATE customers
+         SET user_id = COALESCE($1, user_id),
+             name = $2,
+             contact = $3,
+             first_name = $4,
+             last_name = $5,
+             email = $6,
+             phone = $7,
+             address = $8
+         WHERE id = $9`,
+        [
+          userId || null,
+          publicName,
+          contact,
+          first_name,
+          last_name,
+          normalized.email || null,
+          normalized.phone || null,
+          normalized.address || null,
+          customerId
+        ]
       );
+
       return customerId;
     }
   }
 
-  const [existingCustomers] = await conn.query(
-    'SELECT id FROM customers WHERE (email IS NOT NULL AND email = ?) OR (phone IS NOT NULL AND phone = ?) LIMIT 1',
-    [normalized.email || null, normalized.phone || null]
+  // Find existing customer by email or phone.
+  const existingResult = await client.query(
+    `SELECT id
+     FROM customers
+     WHERE (email IS NOT NULL AND email = $1)
+        OR (phone IS NOT NULL AND phone = $2)
+     LIMIT 1`,
+    [
+      normalized.email || null,
+      normalized.phone || null
+    ]
   );
 
-  if (existingCustomers.length > 0) {
-    const customerId = existingCustomers[0].id;
-    await conn.query(
-      'UPDATE customers SET user_id = COALESCE(?, user_id), name = ?, contact = ?, first_name = ?, last_name = ?, email = ?, phone = ?, address = ? WHERE id = ?',
-      [userId || null, publicName, contact, first_name, last_name, normalized.email || null, normalized.phone || null, normalized.address || null, customerId]
+  if (existingResult.rows.length > 0) {
+    const customerId = existingResult.rows[0].id;
+
+    await client.query(
+      `UPDATE customers
+       SET user_id = COALESCE($1, user_id),
+           name = $2,
+           contact = $3,
+           first_name = $4,
+           last_name = $5,
+           email = $6,
+           phone = $7,
+           address = $8
+       WHERE id = $9`,
+      [
+        userId || null,
+        publicName,
+        contact,
+        first_name,
+        last_name,
+        normalized.email || null,
+        normalized.phone || null,
+        normalized.address || null,
+        customerId
+      ]
     );
+
     return customerId;
   }
 
-  const [customerResult] = await conn.query(
-    'INSERT INTO customers (user_id, name, contact, first_name, last_name, email, phone, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [userId || null, publicName, contact, first_name, last_name, normalized.email || null, normalized.phone || null, normalized.address || null]
+  // Create a new customer.
+  const customerResult = await client.query(
+    `INSERT INTO customers (
+      user_id,
+      name,
+      contact,
+      first_name,
+      last_name,
+      email,
+      phone,
+      address
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    RETURNING id`,
+    [
+      userId || null,
+      publicName,
+      contact,
+      first_name,
+      last_name,
+      normalized.email || null,
+      normalized.phone || null,
+      normalized.address || null
+    ]
   );
 
-  return customerResult.insertId;
+  return customerResult.rows[0].id;
 }
 
-// GET /api/products — list all products with optional filter/search
+// ============================================================
+// GET ALL PRODUCTS
+// GET /api/products
+// ============================================================
+
 async function getProducts(req, res, next) {
   try {
-    const { cat, q, featured, limit = 100, offset = 0 } = req.query;
+    const {
+      cat,
+      q,
+      featured,
+      limit = 100,
+      offset = 0
+    } = req.query;
 
-    // Build dynamic WHERE clause to prevent SQL injection
-    const conditions = ['p.is_active = 1'];
+    const conditions = ['p.is_active = TRUE'];
     const params = [];
 
-    // Filter by category name if provided
     if (cat && cat !== 'all') {
-      conditions.push('c.name = ?');
       params.push(cat);
+      conditions.push(`c.name = $${params.length}`);
     }
 
-    // Full-text search across name and description
     if (q) {
-      conditions.push('(p.name LIKE ? OR p.description LIKE ?)');
-      params.push(`%${q}%`, `%${q}%`);
+      params.push(`%${q}%`);
+      const searchIndex = params.length;
+
+      params.push(`%${q}%`);
+      const descriptionIndex = params.length;
+
+      conditions.push(
+        `(p.name ILIKE $${searchIndex} OR p.description ILIKE $${descriptionIndex})`
+      );
     }
 
-    // Filter by featured flag
     if (featured === 'true') {
-      conditions.push('p.is_featured = 1');
+      conditions.push('p.is_featured = TRUE');
     }
 
-    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const where = `WHERE ${conditions.join(' AND ')}`;
 
-    // Join with categories table to get category name
-    const [products] = await db.query(
-      `SELECT p.id, p.name, p.description, p.price, p.image_url, p.is_featured,
-              c.name AS category_name, c.id AS category_id
+    const parsedLimit = Math.min(
+      Math.max(parseInt(limit, 10) || 100, 1),
+      500
+    );
+
+    const parsedOffset = Math.max(
+      parseInt(offset, 10) || 0,
+      0
+    );
+
+    const productParams = [...params, parsedLimit, parsedOffset];
+
+    const productsResult = await db.query(
+      `SELECT
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.image_url,
+        p.is_featured,
+        c.name AS category_name,
+        c.id AS category_id
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        ${where}
        ORDER BY p.created_at DESC
-       LIMIT ? OFFSET ?`,
-      [...params, parseInt(limit), parseInt(offset)]
+       LIMIT $${params.length + 1}
+       OFFSET $${params.length + 2}`,
+      productParams
     );
 
-    // Get total count for pagination
-    const [countRows] = await db.query(
-      `SELECT COUNT(*) AS total FROM products p LEFT JOIN categories c ON p.category_id = c.id ${where}`,
+    const countResult = await db.query(
+      `SELECT COUNT(*) AS total
+       FROM products p
+       LEFT JOIN categories c ON p.category_id = c.id
+       ${where}`,
       params
     );
 
-    res.json({ products, total: countRows[0].total });
-  } catch (err) { next(err); }
+    res.json({
+      products: productsResult.rows,
+      total: Number(countResult.rows[0].total)
+    });
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-// GET /api/products/:id — single product detail
+// ============================================================
+// GET SINGLE PRODUCT
+// GET /api/products/:id
+// ============================================================
+
 async function getProduct(req, res, next) {
   try {
-    const [rows] = await db.query(
-      `SELECT p.*, c.name AS category_name
-       FROM products p LEFT JOIN categories c ON p.category_id = c.id
-       WHERE p.id = ? AND p.is_active = 1`,
+    const result = await db.query(
+      `SELECT
+        p.*,
+        c.name AS category_name
+       FROM products p
+       LEFT JOIN categories c ON p.category_id = c.id
+       WHERE p.id = $1
+       AND p.is_active = TRUE`,
       [req.params.id]
     );
-    if (!rows.length) return res.status(404).json({ message: 'Product not found.' });
-    res.json(rows[0]);
-  } catch (err) { next(err); }
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Product not found.'
+      });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports = { getProducts, getProduct };
+// ============================================================
+// GET CATEGORIES
+// ============================================================
 
-
-/* ============================================================
-   server/controllers/categoryController.js — Categories
-   ============================================================ */
 async function getCategories(req, res, next) {
   try {
-    const [cats] = await db.query('SELECT id, name FROM categories WHERE is_active = 1 ORDER BY sort_order ASC, name ASC');
-    res.json(cats);
-  } catch (err) { next(err); }
+    const result = await db.query(
+      `SELECT id, name
+       FROM categories
+       WHERE is_active = TRUE
+       ORDER BY sort_order ASC, name ASC`
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports.getCategories = getCategories;
+// ============================================================
+// GET SERVICES
+// ============================================================
 
-
-/* ============================================================
-   server/controllers/serviceController.js — Services
-   ============================================================ */
 async function getServices(req, res, next) {
   try {
-    const [services] = await db.query('SELECT id, title, description, icon FROM services WHERE is_active = 1 ORDER BY sort_order ASC');
-    res.json(services);
-  } catch (err) { next(err); }
+    const result = await db.query(
+      `SELECT id, title, description, icon
+       FROM services
+       WHERE is_active = TRUE
+       ORDER BY sort_order ASC`
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports.getServices = getServices;
+// ============================================================
+// CREATE STORE FRONT ORDER
+// POST /api/orders
+// ============================================================
 
-
-/* ============================================================
-   server/controllers/orderController.js — Order Management
-   ============================================================ */
-
-// POST /api/orders — create new order from cart
 async function createOrder(req, res, next) {
-  const conn = await db.getConnection();
+  let client;
+
   try {
-    await conn.beginTransaction();
+    const {
+      items,
+      total,
+      customer,
+      customerDetails
+    } = req.body;
 
-    const { items, total, customer, customerDetails } = req.body;
     const userId = req.user?.id;
-    const customerPayload = customer || customerDetails || {
-      name: req.body.name || req.body.customerName || '',
-      email: req.body.email || '',
-      phone: req.body.phone || '',
-      address: req.body.address || '',
-    };
 
-    if (!items || items.length === 0) {
-      await conn.rollback();
-      return res.status(400).json({ message: 'Order must contain at least one item.' });
+    const customerPayload =
+      customer ||
+      customerDetails || {
+        name: req.body.name || req.body.customerName || '',
+        email: req.body.email || '',
+        phone: req.body.phone || '',
+        address: req.body.address || ''
+      };
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        message: 'Order must contain at least one item.'
+      });
     }
 
     const validation = validateCheckoutCustomer(customerPayload);
+
     if (!validation.isValid) {
-      await conn.rollback();
       return res.status(400).json({
         message: 'Please complete the missing customer details before placing your order.',
         missing: validation.missing,
         requiresCustomerDetails: true,
-        customerDetails: validation.normalized,
+        customerDetails: validation.normalized
       });
     }
 
-    await ensureCustomerColumns(conn);
-    await ensureOrderColumns(conn);
+    // Ensure email table exists before starting the transaction.
     await ensureEmailTables();
 
-    const customerId = await findOrCreateCustomer(conn, validation.normalized, userId);
+    client = await db.connect();
 
-    const [orderResult] = await conn.query(
-      'INSERT INTO orders (customer_id, total_amount, status, created_at, customer_name, total, order_reference) VALUES (?, ?, "Pending", NOW(), ?, ?, ?)',
-      [customerId, total || 0, validation.normalized.name || null, total || 0, generateOrderReference(null, 'ORD', new Date().toISOString().slice(0, 10).replace(/-/g, ''))]
+    await client.query('BEGIN');
+
+    const customerId = await findOrCreateCustomer(
+      client,
+      validation.normalized,
+      userId
     );
-    const orderId = orderResult.insertId;
-    const orderReference = generateOrderReference(orderId, 'ORD', new Date().toISOString().slice(0, 10).replace(/-/g, ''));
-    await conn.query('UPDATE orders SET order_reference = ? WHERE id = ?', [orderReference, orderId]);
 
+    // Create order first to obtain its generated ID.
+    const orderResult = await client.query(
+      `INSERT INTO orders (
+        customer_id,
+        total_amount,
+        status,
+        customer_name,
+        total
+      )
+      VALUES ($1, $2, 'Pending', $3, $2)
+      RETURNING id`,
+      [
+        customerId,
+        total || 0,
+        validation.normalized.name || null
+      ]
+    );
+
+    const orderId = orderResult.rows[0].id;
+
+    const orderReference = generateOrderReference(
+      orderId,
+      'ORD',
+      new Date().toISOString().slice(0, 10).replace(/-/g, '')
+    );
+
+    await client.query(
+      `UPDATE orders
+       SET order_reference = $1
+       WHERE id = $2`,
+      [orderReference, orderId]
+    );
+
+    // Save every product in the order.
     for (const item of items) {
-      const [prodRows] = await conn.query('SELECT price, name FROM products WHERE id = ?', [item.product_id]);
-      if (!prodRows.length) throw new Error(`Product ${item.product_id} not found.`);
+      const productResult = await client.query(
+        `SELECT price, name
+         FROM products
+         WHERE id = $1
+         AND is_active = TRUE`,
+        [item.product_id]
+      );
 
-      await conn.query(
-        'INSERT INTO order_items (order_id, product_id, quantity, unit_price, comment) VALUES (?, ?, ?, ?, ?)',
-        [orderId, item.product_id, item.quantity, prodRows[0].price, item.comment || '']
+      if (productResult.rows.length === 0) {
+        throw new Error(`Product ${item.product_id} not found.`);
+      }
+
+      const product = productResult.rows[0];
+
+      const quantity = Number(item.quantity);
+
+      if (!Number.isInteger(quantity) || quantity <= 0) {
+        throw new Error(`Invalid quantity for product ${item.product_id}.`);
+      }
+
+      await client.query(
+        `INSERT INTO order_items (
+          order_id,
+          product_id,
+          quantity,
+          unit_price,
+          comment
+        )
+        VALUES ($1, $2, $3, $4, $5)`,
+        [
+          orderId,
+          item.product_id,
+          quantity,
+          product.price,
+          item.comment || ''
+        ]
       );
     }
 
-    await conn.commit();
+    await client.query('COMMIT');
 
-    await recordEvent({
+    // Analytics must not undo a successfully committed order.
+    recordEvent({
       sessionId: req.body?.analyticsSessionId,
       eventType: 'purchase_completed',
-      source: 'checkout',
+      source: 'checkout'
+    }).catch(err => {
+      console.error('[Analytics] Purchase event failed:', err.message);
     });
 
+    // Prepare notification items.
     const orderItems = [];
+
     for (const item of items) {
-      const [prodRows] = await db.query('SELECT price, name FROM products WHERE id = ?', [item.product_id]);
-      if (prodRows.length) {
+      const productResult = await db.query(
+        `SELECT price, name
+         FROM products
+         WHERE id = $1`,
+        [item.product_id]
+      );
+
+      if (productResult.rows.length > 0) {
         orderItems.push({
-          name: prodRows[0].name,
+          name: productResult.rows[0].name,
           quantity: item.quantity,
-          unitPrice: prodRows[0].price,
+          unitPrice: productResult.rows[0].price
         });
       }
     }
@@ -282,66 +505,120 @@ async function createOrder(req, res, next) {
         paymentMethod: req.body.paymentMethod || 'Cash on Delivery',
         shippingAddress: validation.normalized.address,
         estimatedDeliveryDate: req.body.estimatedDeliveryDate || 'Pending',
-        adminEmails: process.env.ADMIN_NOTIFICATION_EMAILS ? process.env.ADMIN_NOTIFICATION_EMAILS.split(',') : [],
-      }).catch((err) => console.error('[Email] Order notification failed:', err.message));
+        adminEmails: process.env.ADMIN_NOTIFICATION_EMAILS
+          ? process.env.ADMIN_NOTIFICATION_EMAILS.split(',')
+          : []
+      }).catch(err => {
+        console.error('[Email] Order notification failed:', err.message);
+      });
     });
 
     res.status(201).json({
       order_id: orderId,
       order_reference: orderReference,
       customer_id: customerId,
-      message: 'Order placed successfully!',
+      message: 'Order placed successfully!'
     });
 
   } catch (err) {
-    await conn.rollback();
+    if (client) {
+      await client.query('ROLLBACK').catch(() => {});
+    }
+
     next(err);
+
   } finally {
-    conn.release();
+    if (client) {
+      client.release();
+    }
   }
 }
 
-// GET /api/orders/my — get all orders for current user
+// ============================================================
+// GET CURRENT USER ORDERS
+// GET /api/orders/my
+// ============================================================
+
 async function getMyOrders(req, res, next) {
   try {
-    const [orders] = await db.query(
-      `SELECT o.id, o.total_amount AS total, o.status, o.created_at,
-              COUNT(oi.id) AS item_count
+    const result = await db.query(
+      `SELECT
+        o.id,
+        o.total_amount AS total,
+        o.status,
+        o.created_at,
+        COUNT(oi.id) AS item_count
        FROM orders o
        JOIN customers c ON o.customer_id = c.id
        LEFT JOIN order_items oi ON o.id = oi.order_id
-       WHERE c.user_id = ?
+       WHERE c.user_id = $1
        GROUP BY o.id
        ORDER BY o.created_at DESC`,
       [req.user.id]
     );
-    res.json(orders);
-  } catch (err) { next(err); }
+
+    res.json(result.rows);
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-// GET /api/orders/:id — get single order with items
+// ============================================================
+// GET SINGLE CUSTOMER ORDER
+// GET /api/orders/:id
+// ============================================================
+
 async function getOrder(req, res, next) {
   try {
-    const [orders] = await db.query(
-      `SELECT o.*, o.total_amount AS total
+    const orderResult = await db.query(
+      `SELECT
+        o.*,
+        o.total_amount AS total
        FROM orders o
        JOIN customers c ON o.customer_id = c.id
-       WHERE o.id = ? AND c.user_id = ?`,
+       WHERE o.id = $1
+       AND c.user_id = $2`,
       [req.params.id, req.user.id]
     );
-    if (!orders.length) return res.status(404).json({ message: 'Order not found.' });
 
-    const [items] = await db.query(
-      `SELECT oi.*, p.name AS product_name, p.image_url
-       FROM order_items oi JOIN products p ON oi.product_id = p.id
-       WHERE oi.order_id = ?`,
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Order not found.'
+      });
+    }
+
+    const itemsResult = await db.query(
+      `SELECT
+        oi.*,
+        p.name AS product_name,
+        p.image_url
+       FROM order_items oi
+       JOIN products p ON oi.product_id = p.id
+       WHERE oi.order_id = $1`,
       [req.params.id]
     );
 
-    res.json({ ...orders[0], items });
-  } catch (err) { next(err); }
+    res.json({
+      ...orderResult.rows[0],
+      items: itemsResult.rows
+    });
+
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports.createOrder = createOrder;
-module.exports.getMyOrders = getMyOrders;
-module.exports.getOrder    = getOrder;
+// ============================================================
+// EXPORTS
+// ============================================================
+
+module.exports = {
+  getProducts,
+  getProduct,
+  getCategories,
+  getServices,
+  createOrder,
+  getMyOrders,
+  getOrder
+};
