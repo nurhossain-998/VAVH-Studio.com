@@ -37,27 +37,37 @@ async function getAll(req, res) {
 // ============================================================
 
 async function create(req, res) {
-  const {
-    customerName,
-    productId,
-    productName,
-    qty,
-    total,
-    financeNameDue,
-    dueTotal,
-    duePaid,
-    dueRemaining,
-    notes
-  } = req.body;
+ const {
+  customerId,
+  customerName,
+  productId,
+  productName,
+  qty,
+  total,
+  financeNameDue,
+  dueTotal,
+  duePaid,
+  dueRemaining,
+  notes
+} = req.body;
 
-  const quantity = Number(qty);
+const quantity = Number(qty);
+const totalAmount = Number(total);
 
-  if (!customerName || !productId || !Number.isFinite(quantity) || quantity <= 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Customer, product, and a valid quantity are required.'
-    });
-  }
+  if (
+  !customerId ||
+  !customerName ||
+  !productId ||
+  !Number.isFinite(quantity) ||
+  quantity <= 0 ||
+  !Number.isFinite(totalAmount) ||
+  totalAmount < 0
+) {
+  return res.status(400).json({
+    success: false,
+    message: 'Customer, product, and valid order details are required.'
+  });
+}
 
   const client = await db.connect();
 
@@ -96,36 +106,40 @@ async function create(req, res) {
     );
 
     // Insert order and retrieve its generated ID.
-    const orderResult = await client.query(
-      `INSERT INTO orders
-       (
-         customer_name,
-         product_id,
-         product_name,
-         qty,
-         total,
-         status,
-         finance_name_due,
-         due_total,
-         due_paid,
-         due_remaining,
-         notes
-       )
-       VALUES ($1, $2, $3, $4, $5, 'Pending', $6, $7, $8, $9, $10)
-       RETURNING id`,
-      [
-        customerName,
-        productId,
-        productName || '',
-        quantity,
-        total || 0,
-        financeNameDue || '',
-        dueTotal || 0,
-        duePaid || 0,
-        dueRemaining || 0,
-        notes || ''
-      ]
-    );
+    // Insert order and retrieve its generated ID.
+const orderResult = await client.query(
+  `INSERT INTO orders
+   (
+     customer_id,
+     customer_name,
+     product_id,
+     product_name,
+     qty,
+     total_amount,
+     total,
+     status,
+     finance_name_due,
+     due_total,
+     due_paid,
+     due_remaining,
+     notes
+   )
+   VALUES ($1, $2, $3, $4, $5, $6, $6, 'Pending', $7, $8, $9, $10, $11)
+   RETURNING id`,
+  [
+    customerId,
+    customerName,
+    productId,
+    productName || '',
+    quantity,
+    totalAmount,
+    financeNameDue || '',
+    dueTotal || 0,
+    duePaid || 0,
+    dueRemaining || 0,
+    notes || ''
+  ]
+);
 
     const newOrderId = orderResult.rows[0].id;
     const orderId = 'ID' + String(newOrderId).padStart(4, '0');
