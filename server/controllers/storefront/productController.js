@@ -1,3 +1,4 @@
+
 // ============================================================
 // Storefront Product, Category, Service and Order Controller
 // PostgreSQL-compatible
@@ -30,10 +31,7 @@ function splitCustomerName(fullName = '') {
   const trimmed = (fullName || '').trim();
 
   if (!trimmed) {
-    return {
-      first_name: '',
-      last_name: ''
-    };
+    return { first_name: '', last_name: '' };
   }
 
   const parts = trimmed.split(/\s+/);
@@ -58,13 +56,10 @@ async function findOrCreateCustomer(client, customerData, userId) {
 
   const contact = normalized.phone || normalized.email || null;
 
-  // Find customer by logged-in user.
   if (userId) {
     const existingUserResult = await client.query(
-      `SELECT id
-       FROM customers
-       WHERE user_id = $1
-       LIMIT 1`,
+      `SELECT id FROM customers
+       WHERE user_id = $1 LIMIT 1`,
       [userId]
     );
 
@@ -99,17 +94,12 @@ async function findOrCreateCustomer(client, customerData, userId) {
     }
   }
 
-  // Find existing customer by email or phone.
   const existingResult = await client.query(
-    `SELECT id
-     FROM customers
+    `SELECT id FROM customers
      WHERE (email IS NOT NULL AND email = $1)
         OR (phone IS NOT NULL AND phone = $2)
      LIMIT 1`,
-    [
-      normalized.email || null,
-      normalized.phone || null
-    ]
+    [normalized.email || null, normalized.phone || null]
   );
 
   if (existingResult.rows.length > 0) {
@@ -142,7 +132,6 @@ async function findOrCreateCustomer(client, customerData, userId) {
     return customerId;
   }
 
-  // Create a new customer.
   const customerResult = await client.query(
     `INSERT INTO customers (
       user_id,
@@ -173,7 +162,6 @@ async function findOrCreateCustomer(client, customerData, userId) {
 
 // ============================================================
 // GET ALL PRODUCTS
-// GET /api/products
 // ============================================================
 
 async function getProducts(req, res, next) {
@@ -222,8 +210,6 @@ async function getProducts(req, res, next) {
       0
     );
 
-    const productParams = [...params, parsedLimit, parsedOffset];
-
     const productsResult = await db.query(
       `SELECT
         p.id,
@@ -240,7 +226,7 @@ async function getProducts(req, res, next) {
        ORDER BY p.created_at DESC
        LIMIT $${params.length + 1}
        OFFSET $${params.length + 2}`,
-      productParams
+      [...params, parsedLimit, parsedOffset]
     );
 
     const countResult = await db.query(
@@ -263,15 +249,12 @@ async function getProducts(req, res, next) {
 
 // ============================================================
 // GET SINGLE PRODUCT
-// GET /api/products/:id
 // ============================================================
 
 async function getProduct(req, res, next) {
   try {
     const result = await db.query(
-      `SELECT
-        p.*,
-        c.name AS category_name
+      `SELECT p.*, c.name AS category_name
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        WHERE p.id = $1
@@ -333,8 +316,7 @@ async function getServices(req, res, next) {
 }
 
 // ============================================================
-// CREATE STORE FRONT ORDER
-// POST /api/orders
+// CREATE STOREFRONT ORDER
 // ============================================================
 
 async function createOrder(req, res, next) {
@@ -376,7 +358,6 @@ async function createOrder(req, res, next) {
       });
     }
 
-    // Ensure email table exists before starting the transaction.
     await ensureEmailTables();
 
     client = await db.connect();
@@ -389,7 +370,6 @@ async function createOrder(req, res, next) {
       userId
     );
 
-    // Create order first to obtain its generated ID.
     const orderResult = await client.query(
       `INSERT INTO orders (
         customer_id,
@@ -422,7 +402,9 @@ async function createOrder(req, res, next) {
       [orderReference, orderId]
     );
 
-    // Save every product in the order.
+    // Save order items and prepare notification data.
+    const orderItems = [];
+
     for (const item of items) {
       const productResult = await client.query(
         `SELECT price, name
@@ -437,11 +419,12 @@ async function createOrder(req, res, next) {
       }
 
       const product = productResult.rows[0];
-
       const quantity = Number(item.quantity);
 
       if (!Number.isInteger(quantity) || quantity <= 0) {
-        throw new Error(`Invalid quantity for product ${item.product_id}.`);
+        throw new Error(
+          `Invalid quantity for product ${item.product_id}.`
+        );
       }
 
       await client.query(
@@ -461,11 +444,17 @@ async function createOrder(req, res, next) {
           item.comment || ''
         ]
       );
+
+      orderItems.push({
+        name: product.name,
+        quantity,
+        unitPrice: product.price
+      });
     }
 
     await client.query('COMMIT');
 
-    // Analytics must not undo a successfully committed order.
+    // Record analytics without affecting the saved order.
     recordEvent({
       sessionId: req.body?.analyticsSessionId,
       eventType: 'purchase_completed',
@@ -474,26 +463,7 @@ async function createOrder(req, res, next) {
       console.error('[Analytics] Purchase event failed:', err.message);
     });
 
-    // Prepare notification items.
-    const orderItems = [];
-
-    for (const item of items) {
-      const productResult = await db.query(
-        `SELECT price, name
-         FROM products
-         WHERE id = $1`,
-        [item.product_id]
-      );
-
-      if (productResult.rows.length > 0) {
-        orderItems.push({
-          name: productResult.rows[0].name,
-          quantity: item.quantity,
-          unitPrice: productResult.rows[0].price
-        });
-      }
-    }
-
+    // Send order notifications.
     setImmediate(() => {
       sendOrderNotifications({
         orderId,
@@ -509,7 +479,10 @@ async function createOrder(req, res, next) {
           ? process.env.ADMIN_NOTIFICATION_EMAILS.split(',')
           : []
       }).catch(err => {
-        console.error('[Email] Order notification failed:', err.message);
+        console.error(
+          '[Email] Order notification failed:',
+          err.message
+        );
       });
     });
 
@@ -536,7 +509,6 @@ async function createOrder(req, res, next) {
 
 // ============================================================
 // GET CURRENT USER ORDERS
-// GET /api/orders/my
 // ============================================================
 
 async function getMyOrders(req, res, next) {
@@ -566,7 +538,6 @@ async function getMyOrders(req, res, next) {
 
 // ============================================================
 // GET SINGLE CUSTOMER ORDER
-// GET /api/orders/:id
 // ============================================================
 
 async function getOrder(req, res, next) {
