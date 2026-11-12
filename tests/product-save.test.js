@@ -35,5 +35,5 @@ test('maps legacy admin product fields to the current schema', () => {
   assert.equal(result.normalized.description, 'Warm glow lamp');
   assert.equal(result.normalized.stock, 8);
   assert.equal(result.normalized.category_id, null);
-  assert.equal(result.normalized.is_featured, 0);
+  assert.equal(result.normalized.is_featured, false);
 });
