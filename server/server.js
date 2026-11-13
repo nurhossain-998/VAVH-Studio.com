@@ -18,6 +18,9 @@ const { ensureEmailTables } = require('./services/emailMigration');
 const { ensureSchema: ensureVavhAiSchema } = require('./services/vavhAiService');
 
 const app = express();
+const sessionStore = new MySQLSessionStore({
+    tableName: 'session_store'
+});
 
 // Middleware
 const configuredOrigins = (process.env.CORS_ORIGINS || '')
@@ -91,7 +94,7 @@ function ensureCsrfToken(req) {
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(session({
-    store: new MySQLSessionStore({ tableName: 'session_store' }),
+    store: sessionStore,
     secret: (() => {
         if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET is required.');
         return process.env.SESSION_SECRET;
@@ -389,8 +392,25 @@ app.get(/(.*)/, (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-ensureEmailTables().catch((err) => console.error('[Email] Initialization failed:', err.message));
-ensureVavhAiSchema().catch((err) => console.error('[VAVH AI] Analytics initialization failed:', err.message));
-app.listen(PORT, () => {
-    console.log(` VAVH Platform Server running on port ${PORT}`);
-});
+
+async function startServer() {
+    try {
+        // Verify PostgreSQL connection
+        await db.query('SELECT 1');
+
+        // Wait for all required tables and indexes
+        await sessionStore.ready;
+        await ensureEmailTables();
+        await ensureVavhAiSchema();
+
+        // Start accepting requests only after initialization succeeds
+        app.listen(PORT, () => {
+            console.log(`VAVH Platform Server running on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error('[Startup] Server initialization failed:', err);
+        process.exit(1);
+    }
+}
+
+startServer();
