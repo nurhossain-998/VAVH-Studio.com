@@ -1,4 +1,3 @@
-```javascript
 const session = require('express-session');
 const db = require('../config/db');
 
@@ -111,4 +110,3 @@ class PostgreSQLSessionStore extends session.Store {
 }
 
 module.exports = PostgreSQLSessionStore;
-```
