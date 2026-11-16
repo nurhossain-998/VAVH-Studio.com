@@ -4,7 +4,7 @@
    ============================================================ */
 
 // Base URL for all API requests — update this for production
-const API_BASE_URL = 'http://localhost:3000/api/storefront';
+const API_BASE_URL = 'https://vavh-studio-com.onrender.com/api/storefront';
 
 // JWT token key stored in localStorage
 const TOKEN_KEY = 'vavh_token';
