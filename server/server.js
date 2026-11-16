@@ -93,6 +93,11 @@ function ensureCsrfToken(req) {
 // Increase body parsing limits to allow base64 image payloads from the admin UI
 app.use(express.json({ limit: process.env.JSON_LIMIT || '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.JSON_LIMIT || '10mb' }));
+
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 app.use(session({
     store: sessionStore,
     secret: (() => {
@@ -102,11 +107,12 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     rolling: true,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: Number(process.env.SESSION_MAX_AGE || 1000 * 60 * 60 * 8)
+
+   cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: Number(process.env.SESSION_MAX_AGE || 1000 * 60 * 60 * 8)
     }
 }));
 
@@ -121,13 +127,24 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/api/csrf-token', (req, res) => {
+const csrfTokenHandler = (req, res) => {
     const token = ensureCsrfToken(req);
+
     if (!token) {
-        return res.status(500).json({ success: false, message: 'Unable to create CSRF token.' });
+        return res.status(500).json({
+            success: false,
+            message: 'Unable to create CSRF token.'
+        });
     }
-    return res.json({ success: true, csrfToken: token });
-});
+
+    return res.json({
+        success: true,
+        csrfToken: token
+    });
+};
+
+app.get('/api/csrf-token', csrfTokenHandler);
+app.get('/api/storefront/csrf-token', csrfTokenHandler);
 
 app.use((req, res, next) => {
     if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
