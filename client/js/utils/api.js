@@ -11,22 +11,33 @@
  * @param {object} options    - Fetch options (method, body, etc.)
  * @returns {Promise<any>}    - Parsed JSON response
  */
-async function ensureCsrfToken() {
-  if (sessionStorage.getItem('vavh_csrf_token')) return;
 
+async function ensureCsrfToken() {
   try {
-    const response = await fetch(`${window.VAVH.API_BASE_URL}/csrf-token`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `${window.VAVH.API_BASE_URL}/csrf-token`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        cache: 'no-store',
+      }
+    );
+
     const data = await response.json();
-    if (response.ok && data.success && data.csrfToken) {
-      sessionStorage.setItem('vavh_csrf_token', data.csrfToken);
+
+    if (!response.ok || !data.success || !data.csrfToken) {
+      throw new Error(data.message || 'Unable to obtain CSRF token.');
     }
+
+    sessionStorage.setItem('vavh_csrf_token', data.csrfToken);
+
+    return data.csrfToken;
   } catch (err) {
-    console.warn('[CSRF] Unable to fetch token:', err);
+    console.error('[CSRF] Token request failed:', err);
+    throw err;
   }
 }
+
 
 async function apiRequest(endpoint, options = {}) {
   // Resolve admin paths to the admin API mount when the storefront base is active
@@ -39,10 +50,11 @@ async function apiRequest(endpoint, options = {}) {
   const token = isAdminRequest ? null : localStorage.getItem(window.VAVH.TOKEN_KEY);
 
   const method = (options.method || 'GET').toUpperCase();
-  if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-    await ensureCsrfToken();
-  }
-  const csrfToken = sessionStorage.getItem('vavh_csrf_token');
+  let csrfToken = null;
+
+if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+  csrfToken = await ensureCsrfToken();
+}
 
   // Merge default headers with any provided options
   const config = {
