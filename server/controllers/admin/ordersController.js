@@ -208,12 +208,12 @@ async function updateStatus(req, res) {
 
     const updateResult = await db.query(
       `UPDATE orders
-       SET status = $1,
-           completed_at = CASE
-             WHEN $1 = 'Completed'
-             THEN COALESCE(completed_at, NOW())
-             ELSE completed_at
-           END
+       SET status = $1::varchar,
+    completed_at = CASE
+      WHEN $1::varchar = 'Completed'
+      THEN COALESCE(completed_at, NOW())
+      ELSE completed_at
+    END
        WHERE id = $2`,
       [status, id]
     );
