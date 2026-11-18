@@ -306,7 +306,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const csrfRes = await fetch('/api/csrf-token', { credentials: 'include' });
+        const csrfRes = await fetch('https://vavh-studio-com.onrender.com/api/csrf-token', { credentials: 'include' });
         const csrfData = await csrfRes.json();
         if (csrfRes.ok && csrfData.success && csrfData.csrfToken) {
           sessionStorage.setItem('vavh_csrf_token', csrfData.csrfToken);
@@ -319,7 +319,7 @@
     document.addEventListener('keydown', (event) => {
       if (!event.ctrlKey || !event.shiftKey || event.key.toLowerCase() !== 'a') return;
       event.preventDefault();
-      fetch('/api/auth/session')
+      fetch('https://vavh-studio-com.onrender.com/api/auth/session')
         .then((response) => response.json())
         .then((data) => {
           const role = String(data.user?.role || '').toLowerCase();
@@ -330,7 +330,7 @@
     });
 
     // Verify session
-    fetch('/api/auth/session')
+    fetch('https://vavh-studio-com.onrender.com/api/auth/session')
       .then(res => res.json())
       .then(data => {
         if (!data.success || !data.user) {
@@ -346,7 +346,7 @@
 
     // Logout function
     function logout() {
-      fetch('/api/auth/logout', { method: 'POST' })
+      fetch('https://vavh-studio-com.onrender.com/api/auth/logout', { method: 'POST' })
         .then(() => {
           window.location.href = '/platform/login.html';
         });
@@ -383,7 +383,7 @@
       btn.innerText = 'Updating...';
 
       try {
-        const res = await fetch('/api/auth/change-password', {
+        const res = await fetch('https://vavh-studio-com.onrender.com/api/auth/change-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
