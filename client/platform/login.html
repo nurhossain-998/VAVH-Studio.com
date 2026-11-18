@@ -152,7 +152,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const csrfRes = await fetch('https://vavh-studio-com.onrender.com//api/csrf-token', { credentials: 'include' });
+        const csrfRes = await fetch('https://vavh-studio-com.onrender.com/api/csrf-token', { credentials: 'include' });
         const csrfData = await csrfRes.json();
         if (csrfRes.ok && csrfData.success && csrfData.csrfToken) {
           sessionStorage.setItem('vavh_csrf_token', csrfData.csrfToken);
