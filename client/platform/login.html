@@ -152,7 +152,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const csrfRes = await fetch('/api/csrf-token', { credentials: 'include' });
+        const csrfRes = await fetch('https://vavh-studio-com.onrender.com//api/csrf-token', { credentials: 'include' });
         const csrfData = await csrfRes.json();
         if (csrfRes.ok && csrfData.success && csrfData.csrfToken) {
           sessionStorage.setItem('vavh_csrf_token', csrfData.csrfToken);
@@ -162,7 +162,7 @@
       }
 
       // If already logged in, redirect to dashboard
-      fetch('/api/auth/session')
+      fetch('https://vavh-studio-com.onrender.com/api/auth/session')
         .then(r => r.json())
         .then(data => {
           if (data.success && data.user) {
@@ -185,7 +185,7 @@
 
       try {
         const csrfToken = sessionStorage.getItem('vavh_csrf_token');
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch('https://vavh-studio-com.onrender.com/api/auth/login', {
           method: 'POST',
           credentials: 'include',
           headers: {

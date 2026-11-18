@@ -25,7 +25,7 @@
 ─────────────────────────────────────────────────────────── */
 const API = {
   // Base URL — since frontend is served from same server, no need for full URL
-  BASE: '/api',
+  BASE: 'https://vavh-studio-com.onrender.com/api',
 
   async request(method, path, body = null) {
     const opts = {
