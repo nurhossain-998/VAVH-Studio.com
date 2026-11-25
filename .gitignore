@@ -1,5 +1,15 @@
-node_modules
+# Electron build output
+dist/
+release/
+out/
+
+# Dependencies
+node_modules/
+
+# Environment variables
 .env
 .env.*
 !.env.example
+
+# Logs
 *.log
