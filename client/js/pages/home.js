@@ -9,6 +9,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   const grid       = document.getElementById('featuredGrid');
   // Filter pill wrapper on homepage
   const filterWrap = document.getElementById('homeFilterWrap');
+  const categoryStrip = document.getElementById('categoryStrip');
+
+  // Keep the desktop cards and mobile navigation tied to the shared category list.
+  function renderCategoryCards() {
+    if (!categoryStrip) return;
+
+    const categoryIcons = {
+      'Planter': '<path d="M5 9h14l-1.2 11H6.2L5 9Z"/><path d="M12 9c0-3 2-5 5-5 0 3-2 5-5 5Z"/><path d="M12 9c0-3-2-5-5-5 0 3 2 5 5 5Z"/><path d="M12 9v3"/>',
+      '3D Planter': '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 8 9 5 9-5"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13v9"/>',
+      'LED Mirror': '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 7v.01"/><path d="M9 17h6"/>',
+      'Furniture': '<path d="M6 11V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v6"/><path d="M4 11h16v6H4z"/><path d="M6 17v4m12-4v4"/>',
+      'Home Decor': '<path d="m3 10 9-7 9 7"/><path d="M5 9v12h14V9"/><path d="M9 21v-7h6v7"/>',
+    };
+
+    categoryStrip.innerHTML = (window.VAVH.CATEGORIES || [])
+      .filter(categoryName => categoryName !== 'All')
+      .map(categoryName => {
+        const icon = categoryIcons[categoryName] || '<circle cx="12" cy="12" r="8"/>';
+        const label = categoryName === 'Home Decor' ? 'Home Décor' : categoryName;
+        const query = new URLSearchParams({ cat: categoryName });
+        return `
+          <a href="products.html?${query}" class="category-card" aria-label="Shop ${label}">
+            <span class="category-card__icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>
+            </span>
+            <span class="category-card__name">${label}</span>
+          </a>
+        `;
+      })
+      .join('');
+  }
+
+  renderCategoryCards();
 
   // Store full product list for client-side filtering
   let allProducts = [];
@@ -66,44 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Load products ──────────────────────────────────────────
   await loadProducts();
-
-  // ── Populate category cards with product images ────────────
-  function populateCategoryCards() {
-    const categoryCards = document.querySelectorAll('.category-card');
-    const categoryNames = ['Planter', '3D Planter', 'LED Mirror', 'Furniture', 'Home Decor'];
-    
-    categoryNames.forEach((categoryName, index) => {
-      if (index >= categoryCards.length) return;
-      
-      const card = categoryCards[index];
-      // Find first product in this category with valid image
-      const categoryProduct = allProducts.find(p => 
-        p.category_name?.toLowerCase() === categoryName.toLowerCase() && 
-        p.image_url && 
-        p.image_url.trim() !== ''
-      );
-      
-      if (categoryProduct) {
-        const imageUrl = window.Helpers.productImage(categoryProduct.image_url);
-        const existingDiv = card.querySelector('div');
-        
-        if (existingDiv) {
-          // Replace gradient div with image
-          const img = document.createElement('img');
-          img.src = imageUrl;
-          img.alt = categoryName;
-          img.className = 'category-card__img';
-          img.style.cssText = 'width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:var(--radius-xl);display:block;';
-          img.onerror = function() { 
-            this.src = window.VAVH.DEFAULT_PRODUCT_IMG;
-          };
-          existingDiv.replaceWith(img);
-        }
-      }
-    });
-  }
-
-  populateCategoryCards();
 
   // ── Hero 3D Coverflow & Cinematic Showcase Controller ──────
   function startHeroAnimation(products) {
@@ -219,9 +214,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="hero__showcase-panel">
             <div class="hero__showcase-header">
               <span class="hero__showcase-badge">${product.category_name || 'FEATURED COLLECTION'}</span>
-              <span class="hero__showcase-price">${window.Helpers.formatPrice(product.price)}</span>
             </div>
             <h2 class="hero__showcase-title">${product.name}</h2>
+            <span class="hero__showcase-price">${window.Helpers.formatPrice(product.price)}</span>
             <p class="hero__showcase-desc">
               ${product.description || 'Artisanal organic craftsmanship carefully curated to inspire a sense of organic tranquility and timeless presence.'}
             </p>

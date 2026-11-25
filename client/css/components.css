@@ -57,8 +57,10 @@
 /* Center zone — logo block */
 .navbar-center {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1px;
 }
 
 /* Logo text link */
@@ -76,6 +78,15 @@
 /* Logo hover — shift to accent color */
 .navbar-logo:hover {
   color: var(--color-accent);
+}
+
+.navbar-tagline {
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: var(--fw-normal);
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  white-space: nowrap;
 }
 
 /* Right zone — action icons (wishlist, cart, login) */
